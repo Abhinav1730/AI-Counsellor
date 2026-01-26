@@ -57,7 +57,7 @@ export default function Login() {
 
                 <button
                     type="submit"
-                    className="w-full btn-premium justify-center mt-6"
+                    className="w-full btn-premium justify-center mt-10"
                 >
                     Resume Mission
                     <ArrowRight className="w-5 h-5" />

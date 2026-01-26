@@ -269,14 +269,14 @@ export default function Dashboard() {
 
                     {/* Quick AI Suggestion */}
                     <div className="p-1 rounded-[2rem] bg-gradient-to-br from-nature-forest to-nature-sage shadow-2xl">
-                        <div className="bg-nature-cream p-8 rounded-[1.8rem] space-y-6">
+                        <div className="bg-nature-cream p-8 rounded-[1.8rem] space-y-8">
                             <div className="flex items-center gap-3">
                                 <div className="w-10 h-10 rounded-full bg-nature-forest flex items-center justify-center text-white">
                                     <Sparkles size={20} />
                                 </div>
                                 <h3 className="font-bold text-nature-forest">Ask Counsellor</h3>
                             </div>
-                            <p className="text-sm text-nature-forest/70 leading-relaxed font-bold">
+                            <p className="text-sm text-nature-forest/70 leading-relaxed font-bold mb-4">
                                 "I've found 3 universities that match your unique soil. Shall we examine them?"
                             </p>
                             <button

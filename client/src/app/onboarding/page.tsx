@@ -81,7 +81,7 @@ export default function Onboarding() {
                 exit={{ opacity: 0, scale: 0.95 }}
                 className="w-full max-w-2xl glass p-10 rounded-3xl"
             >
-                <div className="flex items-center gap-3 mb-10">
+                <div className="flex items-center gap-3 mb-16">
                     <div className="p-3 rounded-2xl bg-nature-sage/10 text-nature-forest shadow-inner">
                         {React.cloneElement(STEPS[currentStep].icon as React.ReactElement, { size: 28 })}
                     </div>
@@ -202,8 +202,8 @@ export default function Onboarding() {
                                             key={source}
                                             onClick={() => setFormData({ ...formData, funding: source })}
                                             className={`p-5 rounded-2xl border-2 transition-all font-bold text-sm ${formData.funding === source
-                                                    ? 'bg-nature-forest border-nature-forest text-white shadow-lg'
-                                                    : 'bg-white border-nature-sage/10 text-nature-forest/40 hover:border-nature-forest/20'
+                                                ? 'bg-nature-forest border-nature-forest text-white shadow-lg'
+                                                : 'bg-white border-nature-sage/10 text-nature-forest/40 hover:border-nature-forest/20'
                                                 }`}
                                         >
                                             {source}
@@ -237,8 +237,8 @@ export default function Onboarding() {
                                             key={status}
                                             onClick={() => setFormData({ ...formData, sopStatus: status })}
                                             className={`p-5 rounded-2xl border-2 transition-all font-bold text-xs ${formData.sopStatus === status
-                                                    ? 'bg-nature-forest border-nature-forest text-white shadow-lg'
-                                                    : 'bg-white border-nature-sage/10 text-nature-forest/40 hover:border-nature-forest/20'
+                                                ? 'bg-nature-forest border-nature-forest text-white shadow-lg'
+                                                : 'bg-white border-nature-sage/10 text-nature-forest/40 hover:border-nature-forest/20'
                                                 }`}
                                         >
                                             {status}
@@ -251,7 +251,7 @@ export default function Onboarding() {
                 </div>
 
                 {/* Navigation */}
-                <div className="flex justify-between items-center mt-12 pt-8 border-t border-nature-sage/10">
+                <div className="flex justify-between items-center mt-16 pt-8 border-t border-nature-sage/10">
                     <button
                         onClick={handleBack}
                         className={`px-6 py-4 rounded-2xl font-bold flex items-center gap-2 transition-all text-nature-forest/50 hover:text-nature-forest hover:bg-white/50 ${currentStep === 0 ? 'opacity-0 pointer-events-none' : ''
@@ -263,7 +263,7 @@ export default function Onboarding() {
 
                     <button
                         onClick={handleNext}
-                        className="px-10 py-4 btn-primary font-bold flex items-center gap-2 group shadow-xl"
+                        className="btn-premium px-10 py-4 font-bold flex items-center gap-2 group shadow-xl"
                     >
                         {currentStep === STEPS.length - 1 ? 'Launch Profile' : 'Next Phase'}
                         <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />

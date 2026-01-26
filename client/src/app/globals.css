@@ -25,6 +25,7 @@
   --color-forest: var(--nature-forest);
   --color-leaf: var(--nature-leaf);
   --color-gold: var(--nature-gold);
+  --color-cream: var(--nature-cream);
   --color-glass: var(--glass-bg);
 }
 
@@ -105,51 +106,118 @@ h1, h2, h3 {
   -webkit-text-fill-color: transparent;
 }
 
-/* Elite Buttons */
+/* Elite Buttons Refined */
 .btn-premium {
   position: relative;
   background: linear-gradient(135deg, var(--nature-forest) 0%, #2c4a3d 100%);
   color: white;
-  padding: 18px 40px;
+  padding: 18px 42px;
   border-radius: 100px;
-  font-weight: 700;
-  font-size: 1rem;
-  letter-spacing: 0.01em;
-  border: none;
+  font-weight: 800;
+  font-size: 0.95rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   cursor: pointer;
   overflow: hidden;
-  transition: all 0.4s cubic-bezier(0.19, 1, 0.22, 1);
-  box-shadow: 0 10px 30px -10px rgba(30, 51, 42, 0.4);
+  transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+  box-shadow: 
+    0 10px 30px -10px rgba(30, 51, 42, 0.5),
+    inset 0 1px 1px rgba(255, 255, 255, 0.2);
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 12px;
 }
 
+.btn-premium::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -60%;
+  width: 20%;
+  height: 200%;
+  background: rgba(255, 255, 255, 0.1);
+  transform: rotate(30deg);
+  transition: all 0.6s ease;
+}
+
 .btn-premium:hover {
-  transform: translateY(-3px) scale(1.02);
-  box-shadow: 0 20px 40px -10px rgba(30, 51, 42, 0.5);
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 25px 50px -12px rgba(30, 51, 42, 0.6);
   background: linear-gradient(135deg, #2c4a3d 0%, var(--nature-forest) 100%);
 }
 
+.btn-premium:hover::after {
+  left: 120%;
+}
+
 .btn-premium:active {
-  transform: translateY(0) scale(0.98);
+  transform: translateY(-1px) scale(0.98);
 }
 
 .btn-glass {
-  background: rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(30, 51, 42, 0.1);
   color: var(--nature-forest);
-  padding: 18px 40px;
+  padding: 18px 42px;
   border-radius: 100px;
-  font-weight: 700;
-  transition: all 0.3s ease;
+  font-weight: 800;
+  font-size: 0.95rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  transition: all 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
 }
 
 .btn-glass:hover {
   background: rgba(255, 255, 255, 0.8);
   border-color: var(--nature-sage);
-  transform: translateY(-2px);
+  transform: translateY(-3px);
+  box-shadow: 0 15px 30px rgba(30, 51, 42, 0.08);
+}
+
+.btn-bloom {
+  background: white;
+  color: var(--nature-forest);
+  border: 2px solid var(--nature-sage);
+  padding: 16px 36px;
+  border-radius: 100px;
+  font-weight: 800;
+  transition: all 0.4s ease;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+}
+
+.btn-bloom::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: var(--nature-sage);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: all 0.6s ease-out;
+  z-index: -1;
+}
+
+.btn-bloom:hover {
+  color: white;
+  border-color: var(--nature-forest);
+}
+
+.btn-bloom:hover::before {
+  width: 300%;
+  height: 300%;
 }
 
 /* Custom Scrollbar */
