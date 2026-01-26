@@ -1,0 +1,90 @@
+@import "tailwindcss";
+
+:root {
+  --background: #05070a;
+  --foreground: #f0f4f8;
+  
+  /* Star Map Palette */
+  --space-deep: #05070a;
+  --space-void: #020406;
+  --star-white: #ffffff;
+  --star-blue: #4f46e5;
+  --star-cyan: #06b6d4;
+  --star-purple: #8b5cf6;
+  --constellation-line: rgba(255, 255, 255, 0.1);
+  --glass-bg: rgba(15, 23, 42, 0.6);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --accent: #4f46e5;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-space-deep: var(--space-deep);
+  --color-space-void: var(--space-void);
+  --color-star-white: var(--star-white);
+  --color-star-blue: var(--star-blue);
+  --color-star-cyan: var(--star-cyan);
+  --color-star-purple: var(--star-purple);
+  --color-glass: var(--glass-bg);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--space-deep);
+  color: var(--foreground);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* Star field background effect */
+.star-field {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: -1;
+  background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%);
+  overflow: hidden;
+}
+
+/* Glassmorphism utility */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, var(--star-white) 0%, var(--star-cyan) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--space-void);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--star-blue);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--star-cyan);
+}
