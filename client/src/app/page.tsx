@@ -2,90 +2,126 @@
 
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
-import { Compass, Sparkles, Target, ArrowRight } from "lucide-react";
+import { Sprout, Compass, Sparkles, Target, ArrowRight } from "lucide-react";
 
 export default function Home() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen px-4 overflow-hidden">
+    <div className="flex flex-col items-center min-h-screen px-6 py-20 overflow-hidden">
       {/* Hero Section */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
-        className="text-center z-20 max-w-4xl"
-      >
+      <section className="relative z-20 w-full max-w-6xl mx-auto flex flex-col items-center text-center mb-32">
         <motion.div
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 0.2, duration: 0.5 }}
-          className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-star-blue/30 bg-star-blue/10 text-star-cyan text-sm mb-6"
+          className="inline-flex items-center gap-2 px-5 py-2 rounded-full border border-nature-sage/20 bg-white/40 backdrop-blur-xl text-nature-forest text-[11px] font-black uppercase tracking-[0.2em] mb-10 shadow-sm"
         >
-          <Sparkles size={14} />
-          <span>Intelligent Study Abroad Guidance</span>
+          <Sprout size={14} className="text-nature-leaf" />
+          <span>The Academic Arboretum</span>
         </motion.div>
 
-        <h1 className="text-5xl md:text-7xl font-bold mb-6 tracking-tight leading-tight">
-          Navigate Your Future with <br />
-          <span className="text-gradient">AI Precision</span>
-        </h1>
+        <motion.h1
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="text-6xl md:text-8xl font-black mb-8 leading-[0.95] text-nature-forest"
+        >
+          Your Future, <br />
+          <span className="text-gradient">Precisely Nurtured.</span>
+        </motion.h1>
 
-        <p className="text-lg md:text-xl text-foreground/70 mb-10 max-w-2xl mx-auto leading-relaxed">
-          The only study-abroad guide that doesn&apos;t just answer questions—it reasons,
-          recommends, and executes your path to the world&apos;s top universities.
-        </p>
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.1 }}
+          className="text-xl md:text-2xl text-nature-forest/70 mb-12 max-w-2xl mx-auto font-medium leading-relaxed"
+        >
+          A guided study-abroad ecosystem that reasons, recommends, and tends to your path to the world&apos;s elite universities.
+        </motion.p>
 
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+          className="flex flex-col sm:flex-row gap-6 justify-center items-center"
+        >
           <Link href="/signup">
-            <button className="px-8 py-4 rounded-xl bg-star-blue hover:bg-star-purple text-white font-semibold transition-all duration-300 flex items-center gap-2 group shadow-lg shadow-star-blue/20">
-              Get Started
-              <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+            <button className="btn-premium">
+              Start Your Journey
+              <ArrowRight size={20} />
             </button>
           </Link>
           <Link href="/login">
-            <button className="px-8 py-4 rounded-xl border border-glass-border hover:bg-white/5 transition-all duration-300 font-semibold glass">
-              Login to Portal
+            <button className="btn-glass">
+              Access Portal
             </button>
           </Link>
-        </div>
-      </motion.div>
+        </motion.div>
+      </section>
 
-      {/* Floating Features (Simplified Constellation nodes) */}
-      <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-20">
-        <motion.div
-          animate={{ y: [0, -10, 0] }}
-          transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-1/4 left-1/4 w-32 h-32 bg-star-blue rounded-full blur-[80px]"
-        />
-        <motion.div
-          animate={{ y: [0, 10, 0] }}
-          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute bottom-1/4 right-1/4 w-40 h-40 bg-star-purple rounded-full blur-[100px]"
-        />
-      </div>
-
-      {/* Visual Metaphor: Stage indicators */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-24 max-w-5xl w-full z-20">
+      {/* Feature Cards Section */}
+      <section className="relative z-20 w-full max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-10">
         {[
-          { icon: <Compass className="text-star-cyan" />, title: "Discovery", desc: "AI-led profile building and goal alignment." },
-          { icon: <Target className="text-star-purple" />, title: "Precision", desc: "Data-driven university recommendations and risk analysis." },
-          { icon: <Sparkles className="text-star-white" />, title: "Execution", desc: "Step-by-step application guidance and automated to-dos." },
+          {
+            img: "/discovery.png",
+            icon: <Compass className="text-nature-sage" />,
+            title: "Discovery",
+            desc: "Map your academic DNA to find universities that perfectly fit your unique career ecosystem."
+          },
+          {
+            img: "/focus.png",
+            icon: <Target className="text-nature-forest" />,
+            title: "Nurtured Focus",
+            desc: "Advanced logic that ensures your commitment leads to growth, not just applications."
+          },
+          {
+            img: "/precision.png",
+            icon: <Sparkles className="text-nature-gold" />,
+            title: "Elite Precision",
+            desc: "AI precision handling every detail of your roadmap with world-class execution."
+          },
         ].map((feature, i) => (
           <motion.div
             key={i}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 + i * 0.1 }}
-            className="p-6 rounded-2xl glass hover:border-star-blue/50 transition-colors group"
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: i * 0.15, duration: 0.8 }}
+            className="glass-card flex flex-col h-full overflow-hidden group"
           >
-            <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-              {feature.icon}
+            <div className="relative h-64 w-full overflow-hidden">
+              <Image
+                src={feature.img}
+                alt={feature.title}
+                fill
+                className="object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-white/80 to-transparent" />
+              <div className="absolute bottom-6 left-8">
+                <div className="w-12 h-12 rounded-2xl bg-white shadow-xl flex items-center justify-center mb-0 group-hover:-translate-y-2 transition-transform duration-500">
+                  {feature.icon}
+                </div>
+              </div>
             </div>
-            <h3 className="text-xl font-bold mb-2">{feature.title}</h3>
-            <p className="text-foreground/60 text-sm leading-relaxed">{feature.desc}</p>
+
+            <div className="p-10 pt-4">
+              <h3 className="text-2xl font-black mb-4 text-nature-forest">{feature.title}</h3>
+              <p className="text-nature-forest/60 text-base leading-relaxed font-medium">
+                {feature.desc}
+              </p>
+            </div>
           </motion.div>
         ))}
-      </div>
+      </section>
+
+      {/* Bottom CTA / Branding */}
+      <footer className="mt-40 text-center flex flex-col items-center opacity-40 hover:opacity-100 transition-opacity">
+        <Sprout size={32} className="text-nature-leaf mb-4" />
+        <p className="text-[10px] font-black uppercase tracking-[0.4em] text-nature-forest">
+          Established for Global Excellence • AI Counsellor
+        </p>
+      </footer>
     </div>
   );
 }

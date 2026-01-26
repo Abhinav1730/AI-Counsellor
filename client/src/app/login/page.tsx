@@ -12,7 +12,6 @@ export default function Login() {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        // Simulate login
         const user = JSON.parse(localStorage.getItem("user") || "{}");
         if (user.email === formData.email) {
             if (user.onboardingComplete) {
@@ -21,37 +20,36 @@ export default function Login() {
                 router.push("/onboarding");
             }
         } else {
-            // For demo, just let them in to onboarding if user doesn't exist
             router.push("/onboarding");
         }
     };
 
     return (
-        <AuthCard title="Reconnect" subtitle="Access your study abroad portal.">
+        <AuthCard title="Welcome Back" subtitle="Re-enter your academic ecosystem.">
             <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="space-y-2">
-                    <label className="text-xs uppercase tracking-widest text-foreground/50 ml-1">Email Address</label>
+                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-nature-forest/40 ml-1">Guardian Email</label>
                     <div className="relative">
-                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground/40 w-4 h-4" />
+                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-nature-forest/30 w-4 h-4" />
                         <input
                             type="email"
                             required
                             placeholder="john@example.com"
-                            className="w-full pl-10 pr-4 py-3 bg-white/5 border border-glass-border rounded-xl focus:outline-none focus:border-star-blue transition-colors text-sm"
+                            className="w-full pl-12 pr-4 py-4 bg-white/50 border border-nature-sage/10 rounded-2xl focus:outline-none focus:border-nature-forest focus:bg-white transition-all text-sm font-bold text-nature-forest"
                             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                         />
                     </div>
                 </div>
 
                 <div className="space-y-2">
-                    <label className="text-xs uppercase tracking-widest text-foreground/50 ml-1">Password</label>
+                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-nature-forest/40 ml-1">Access Token</label>
                     <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground/40 w-4 h-4" />
+                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-nature-forest/30 w-4 h-4" />
                         <input
                             type="password"
                             required
                             placeholder="••••••••"
-                            className="w-full pl-10 pr-4 py-3 bg-white/5 border border-glass-border rounded-xl focus:outline-none focus:border-star-blue transition-colors text-sm"
+                            className="w-full pl-12 pr-4 py-4 bg-white/50 border border-nature-sage/10 rounded-2xl focus:outline-none focus:border-nature-forest focus:bg-white transition-all text-sm font-bold text-nature-forest"
                             onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                         />
                     </div>
@@ -59,16 +57,16 @@ export default function Login() {
 
                 <button
                     type="submit"
-                    className="w-full py-4 bg-star-blue hover:bg-star-purple text-white rounded-xl font-bold transition-all duration-300 flex items-center justify-center gap-2 shadow-lg shadow-star-blue/20 group"
+                    className="w-full btn-premium justify-center mt-6"
                 >
-                    Sign In
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    Resume Mission
+                    <ArrowRight className="w-5 h-5" />
                 </button>
 
-                <p className="text-center text-xs text-foreground/40 mt-6">
-                    New to the portal?{" "}
-                    <Link href="/signup" className="text-star-cyan hover:underline">
-                        Create account
+                <p className="text-center text-[10px] font-black uppercase tracking-[0.15em] text-nature-forest/40 mt-8">
+                    New Seed?{" "}
+                    <Link href="/signup" className="text-nature-leaf hover:underline">
+                        Plant Profile
                     </Link>
                 </p>
             </form>

@@ -12,51 +12,50 @@ export default function Signup() {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        // Simulate signup
         localStorage.setItem("user", JSON.stringify({ ...formData, onboardingComplete: false }));
         router.push("/onboarding");
     };
 
     return (
-        <AuthCard title="Join the Constellation" subtitle="Create your profile and start your journey.">
-            <form onSubmit={handleSubmit} className="space-y-4">
+        <AuthCard title="Root Your Journey" subtitle="Create your profile to start cultivating.">
+            <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="space-y-2">
-                    <label className="text-xs uppercase tracking-widest text-foreground/50 ml-1">Full Name</label>
+                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-nature-forest/40 ml-1">Full Name</label>
                     <div className="relative">
-                        <User className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground/40 w-4 h-4" />
+                        <User className="absolute left-4 top-1/2 -translate-y-1/2 text-nature-forest/30 w-4 h-4" />
                         <input
                             type="text"
                             required
                             placeholder="John Doe"
-                            className="w-full pl-10 pr-4 py-3 bg-white/5 border border-glass-border rounded-xl focus:outline-none focus:border-star-blue transition-colors text-sm"
+                            className="w-full pl-12 pr-4 py-4 bg-white/50 border border-nature-sage/10 rounded-2xl focus:outline-none focus:border-nature-forest focus:bg-white transition-all text-sm font-bold text-nature-forest"
                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                         />
                     </div>
                 </div>
 
                 <div className="space-y-2">
-                    <label className="text-xs uppercase tracking-widest text-foreground/50 ml-1">Email Address</label>
+                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-nature-forest/40 ml-1">Email Address</label>
                     <div className="relative">
-                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground/40 w-4 h-4" />
+                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-nature-forest/30 w-4 h-4" />
                         <input
                             type="email"
                             required
                             placeholder="john@example.com"
-                            className="w-full pl-10 pr-4 py-3 bg-white/5 border border-glass-border rounded-xl focus:outline-none focus:border-star-blue transition-colors text-sm"
+                            className="w-full pl-12 pr-4 py-4 bg-white/50 border border-nature-sage/10 rounded-2xl focus:outline-none focus:border-nature-forest focus:bg-white transition-all text-sm font-bold text-nature-forest"
                             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                         />
                     </div>
                 </div>
 
                 <div className="space-y-2">
-                    <label className="text-xs uppercase tracking-widest text-foreground/50 ml-1">Create Password</label>
+                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-nature-forest/40 ml-1">Password</label>
                     <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground/40 w-4 h-4" />
+                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-nature-forest/30 w-4 h-4" />
                         <input
                             type="password"
                             required
                             placeholder="••••••••"
-                            className="w-full pl-10 pr-4 py-3 bg-white/5 border border-glass-border rounded-xl focus:outline-none focus:border-star-blue transition-colors text-sm"
+                            className="w-full pl-12 pr-4 py-4 bg-white/50 border border-nature-sage/10 rounded-2xl focus:outline-none focus:border-nature-forest focus:bg-white transition-all text-sm font-bold text-nature-forest"
                             onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                         />
                     </div>
@@ -64,16 +63,16 @@ export default function Signup() {
 
                 <button
                     type="submit"
-                    className="w-full py-4 bg-star-blue hover:bg-star-purple text-white rounded-xl font-bold transition-all duration-300 flex items-center justify-center gap-2 mt-4 shadow-lg shadow-star-blue/20 group"
+                    className="w-full btn-premium justify-center mt-6"
                 >
-                    Embark Journey
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    Begin Cultivation
+                    <ArrowRight className="w-5 h-5" />
                 </button>
 
-                <p className="text-center text-xs text-foreground/40 mt-6">
-                    Already a member?{" "}
-                    <Link href="/login" className="text-star-cyan hover:underline">
-                        Login here
+                <p className="text-center text-[10px] font-black uppercase tracking-[0.15em] text-nature-forest/40 mt-8">
+                    Member already?{" "}
+                    <Link href="/login" className="text-nature-leaf hover:underline">
+                        Identify
                     </Link>
                 </p>
             </form>
