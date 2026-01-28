@@ -44,14 +44,31 @@ export default function Onboarding() {
         sopStatus: ""
     });
 
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    React.useEffect(() => {
+        const checkUser = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) {
+                // We don't redirect immediately to allow demo-ing the UI, 
+                // but we warn that they'll need to sign up to save.
+                console.warn("No active session found. Progress won't be saved.");
+            }
+        };
+        checkUser();
+    }, []);
+
     const handleNext = async () => {
         if (currentStep < STEPS.length - 1) {
             setDirection(1);
             setCurrentStep(currentStep + 1);
         } else {
+            setIsSubmitting(true);
             try {
                 const { data: { user } } = await supabase.auth.getUser();
+
                 if (!user) {
+                    alert("Your session has expired or your email is not confirmed. Please sign up or log in to save your profile.");
                     router.push("/signup");
                     return;
                 }
@@ -67,7 +84,9 @@ export default function Onboarding() {
                 router.push("/dashboard");
             } catch (error: any) {
                 console.error("Onboarding error:", error);
-                alert("Failed to save profile. Please try again.");
+                alert(error.response?.data?.error || "Failed to save profile. Please confirm your email or try again later.");
+            } finally {
+                setIsSubmitting(false);
             }
         }
     };
@@ -234,14 +253,14 @@ export default function Onboarding() {
                         )}
 
                         {currentStep === 2 && (
-                            <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-1000">
-                                <div className="space-y-6">
-                                    <label className="text-[10px] font-black text-nature-forest/40 uppercase tracking-[0.2em] ml-2">Resource Allocation (USD)</label>
+                            <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+                                <div className="space-y-4">
+                                    <label className="field-label ml-2">Resource Allocation (USD)</label>
                                     <div className="px-2">
                                         <input
                                             type="range"
                                             min="5000" max="100000" step="5000"
-                                            className="w-full h-1.5 bg-nature-forest/5 rounded-full appearance-none accent-nature-forest cursor-pointer"
+                                            className="w-full"
                                             onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
                                             value={formData.budget}
                                         />
@@ -259,8 +278,9 @@ export default function Onboarding() {
                                         <span>Max: $100k+</span>
                                     </div>
                                 </div>
-                                <div className="space-y-6">
-                                    <label className="text-[10px] font-black text-nature-forest/40 uppercase tracking-[0.2em] ml-2">Primary Nutrient Source</label>
+                                <div className="space-y-4">
+                                    <label className="field-label ml-2">Primary Nutrient Source</label>
+                                    <div className="h-2" />
                                     <div className="grid grid-cols-3 gap-4">
                                         {['Self', 'Loan', 'Grant'].map(source => (
                                             <button
@@ -268,10 +288,10 @@ export default function Onboarding() {
                                                 type="button"
                                                 onClick={() => setFormData({ ...formData, funding: source })}
                                                 className={cn(
-                                                    "p-6 rounded-[28px] border border-nature-sage/10 transition-all duration-500 font-black text-xs uppercase tracking-widest",
+                                                    "p-6 rounded-[28px] border transition-all duration-500 font-black text-xs uppercase tracking-widest",
                                                     formData.funding === source
                                                         ? 'bg-nature-forest border-nature-forest text-white shadow-xl -translate-y-1'
-                                                        : 'bg-white/40 border-nature-sage/5 text-nature-forest/30 hover:border-nature-sage/20'
+                                                        : 'bg-white/40 border-nature-sage/5 text-nature-forest/30 hover:bg-white/60'
                                                 )}
                                             >
                                                 {source}
@@ -283,7 +303,7 @@ export default function Onboarding() {
                         )}
 
                         {currentStep === 3 && (
-                            <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+                            <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-1000">
                                 <div className="field-container">
                                     <label className="field-label">External Evaluation</label>
                                     <select
@@ -297,8 +317,9 @@ export default function Onboarding() {
                                         <option value="completed">Vibrant Phase (Completed)</option>
                                     </select>
                                 </div>
-                                <div className="space-y-6">
-                                    <label className="text-[10px] font-black text-nature-forest/40 uppercase tracking-[0.2em] ml-2">Vision Statement (SOP)</label>
+                                <div className="space-y-4">
+                                    <label className="field-label ml-2">Vision Statement (SOP)</label>
+                                    <div className="h-2" />
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                         {['Not Started', 'Drafting', 'Finalized'].map(status => (
                                             <button
@@ -306,10 +327,10 @@ export default function Onboarding() {
                                                 type="button"
                                                 onClick={() => setFormData({ ...formData, sopStatus: status })}
                                                 className={cn(
-                                                    "p-6 rounded-[28px] border border-nature-sage/10 transition-all duration-500 font-black text-[10px] uppercase tracking-widest",
+                                                    "p-6 rounded-[28px] border transition-all duration-500 font-black text-[10px] uppercase tracking-widest",
                                                     formData.sopStatus === status
                                                         ? 'bg-nature-forest border-nature-forest text-white shadow-xl -translate-y-1'
-                                                        : 'bg-white/40 border-nature-sage/5 text-nature-forest/30 hover:border-nature-sage/20'
+                                                        : 'bg-white/40 border-nature-sage/5 text-nature-forest/30 hover:bg-white/60'
                                                 )}
                                             >
                                                 {status}

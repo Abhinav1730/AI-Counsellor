@@ -2,7 +2,7 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { University, ShieldAlert, BadgeCheck, DollarSign, Lock, Unlock } from "lucide-react";
+import { University, ShieldAlert, BadgeCheck, DollarSign, Lock, Unlock, Sparkles, MapPin } from "lucide-react";
 
 interface UniversityProps {
     uni: any;
@@ -14,73 +14,76 @@ export default function UniversityCard({ uni, onLock, isLocked }: UniversityProp
     return (
         <motion.div
             layout
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className={`glass p-6 rounded-3xl space-y-4 border transition-all relative overflow-hidden ${isLocked ? 'border-star-purple border-2' : 'border-white/5 hover:border-star-blue/50'
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className={`premium-card p-10 group transition-all duration-500 ${isLocked ? 'border-nature-leaf/40 ring-2 ring-nature-leaf/10' : 'hover:border-nature-leaf/30'
                 }`}
         >
-            {isLocked && (
-                <div className="absolute top-0 right-0 px-3 py-1 bg-star-purple text-white text-[10px] uppercase font-bold tracking-widest rounded-bl-xl">
-                    Locked Decision
-                </div>
-            )}
-
-            <div className="flex justify-between items-start">
-                <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-star-cyan border border-white/5">
-                        <University size={24} />
+            {/* Status Badge */}
+            <div className="flex justify-between items-start mb-10">
+                <div className="flex items-center gap-5">
+                    <div className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-all duration-500 flex-shrink-0 ${isLocked ? 'bg-nature-leaf text-white shadow-xl shadow-nature-leaf/20' : 'bg-nature-forest/5 text-nature-forest group-hover:bg-nature-forest group-hover:text-white'
+                        }`}>
+                        <University size={28} />
                     </div>
-                    <div>
-                        <h3 className="font-bold text-lg">{uni.name}</h3>
-                        <p className="text-foreground/40 text-xs">{uni.country} • {uni.category}</p>
+                    <div className="flex flex-col gap-1.5">
+                        <h3 className="font-black text-xl text-nature-forest tracking-tighter leading-none">{uni.name}</h3>
+                        <div className="flex items-center gap-2">
+                            <MapPin size={10} className="text-nature-sage" />
+                            <span className="text-[10px] font-bold text-nature-sage uppercase tracking-[0.2em]">{uni.country} • {uni.category}</span>
+                        </div>
                     </div>
                 </div>
-                <div className={`px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-tighter border ${uni.acceptance === 'High' ? 'border-green-500/30 text-green-400 bg-green-500/5' :
-                        uni.acceptance === 'Medium' ? 'border-yellow-500/30 text-yellow-400 bg-yellow-500/5' :
-                            'border-red-500/30 text-red-400 bg-red-500/5'
-                    }`}>
-                    {uni.acceptance} Chance
+            </div>
+
+            {/* Metrics Row */}
+            <div className="grid grid-cols-2 gap-5 mb-10">
+                <div className="bg-nature-forest/5 rounded-3xl p-6 flex flex-col gap-2">
+                    <span className="text-[9px] font-black text-nature-forest/30 uppercase tracking-[0.2em]">Admissions</span>
+                    <span className={`text-xs font-black uppercase tracking-tight ${uni.acceptance === 'High' ? 'text-nature-leaf' :
+                        uni.acceptance === 'Medium' ? 'text-nature-gold' : 'text-[#E14D4D]'
+                        }`}>
+                        {uni.acceptance} Chance
+                    </span>
+                </div>
+                <div className="bg-nature-forest/5 rounded-3xl p-6 flex flex-col gap-2">
+                    <span className="text-[9px] font-black text-nature-forest/30 uppercase tracking-[0.2em]">AI Matching</span>
+                    <span className="text-xs font-black text-nature-forest uppercase flex items-center gap-1.5 tracking-tight">
+                        <Sparkles size={11} className="text-nature-gold" />
+                        {uni.fitScore}% Score
+                    </span>
                 </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 py-2">
-                <div className="flex items-center gap-2 text-xs text-foreground/60">
-                    <DollarSign size={14} className="text-star-cyan" />
-                    {uni.cost} Cost
+            {/* AI Insights Block */}
+            <div className="space-y-6 p-8 rounded-[32px] bg-nature-cream/50 border border-nature-forest/5 mb-10">
+                <div className="flex items-start gap-4">
+                    <BadgeCheck size={16} className="text-nature-leaf mt-0.5 flex-shrink-0" />
+                    <p className="text-[12px] font-bold text-nature-forest/70 leading-relaxed italic">"{uni.reasoning}"</p>
                 </div>
-                <div className="flex items-center gap-2 text-xs text-foreground/60">
-                    <BadgeCheck size={14} className="text-star-purple" />
-                    {uni.fitScore}% AI Fit
-                </div>
-            </div>
-
-            <div className="space-y-3 p-4 rounded-2xl bg-white/5 border border-white/5">
-                <div className="flex items-start gap-2">
-                    <BadgeCheck size={14} className="text-star-cyan mt-0.5 flex-shrink-0" />
-                    <p className="text-[11px] text-foreground/70 leading-relaxed italic">"{uni.reasoning}"</p>
-                </div>
-                <div className="flex items-start gap-2">
-                    <ShieldAlert size={14} className="text-red-400 mt-0.5 flex-shrink-0" />
-                    <p className="text-[11px] text-red-400/70 leading-relaxed font-medium">Risk: {uni.risk}</p>
+                <div className="flex items-start gap-4 pt-6 border-t border-nature-forest/5">
+                    <ShieldAlert size={16} className="text-[#E14D4D] mt-0.5 flex-shrink-0" />
+                    <p className="text-[11px] font-black text-[#E14D4D]/70 leading-relaxed uppercase tracking-tight">Risk Projection: {uni.risk}</p>
                 </div>
             </div>
 
+            {/* Action Button */}
             <button
                 onClick={() => onLock(uni.id)}
-                className={`w-full py-3 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-2 ${isLocked
-                        ? 'bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-500/20'
-                        : 'bg-star-blue text-white hover:bg-star-purple'
+                className={`w-full py-5 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 active:scale-95 ${isLocked
+                    ? 'bg-[#E14D4D]/10 border border-[#E14D4D]/20 text-[#E14D4D] hover:bg-[#E14D4D] hover:text-white'
+                    : 'bg-nature-forest text-white hover:bg-[#15251d] shadow-xl shadow-nature-forest/10'
                     }`}
             >
                 {isLocked ? (
                     <>
                         <Unlock size={14} />
-                        Unlock Decision
+                        Release Commitment
                     </>
                 ) : (
                     <>
                         <Lock size={14} />
-                        Lock & Commit
+                        Commit to Genome
                     </>
                 )}
             </button>

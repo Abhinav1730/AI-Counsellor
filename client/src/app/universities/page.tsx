@@ -3,22 +3,32 @@
 import React, { useState, useEffect } from "react";
 import { UNIVERSITIES } from "@/lib/mockUniversities";
 import UniversityCard from "@/components/universities/UniversityCard";
-import { ArrowLeft, Search, Filter, Info, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Search, Filter, Info, AlertTriangle, Sprout, Sparkles, MapPin, Compass } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
 
 export default function UniversityDiscovery() {
+    const router = useRouter();
     const [lockedId, setLockedId] = useState<string | null>(null);
     const [showAlert, setShowAlert] = useState(false);
+    const [user, setUser] = useState<any>(null);
 
     useEffect(() => {
-        const saved = localStorage.getItem("lockedUni");
-        if (saved) setLockedId(saved);
+        const checkUser = async () => {
+            const { data: { user: supabaseUser } } = await supabase.auth.getUser();
+            if (supabaseUser) setUser(supabaseUser);
+
+            const saved = localStorage.getItem("lockedUni");
+            if (saved) setLockedId(saved);
+        };
+        checkUser();
     }, []);
 
     const handleLock = (id: string) => {
         if (lockedId === id) {
-            if (confirm("Are you sure you want to unlock this decision? This will reset your application strategy.")) {
+            if (confirm("Are you sure you want to release this commitment? This will pause your personalized roadmap.")) {
                 setLockedId(null);
                 localStorage.removeItem("lockedUni");
             }
@@ -31,113 +41,154 @@ export default function UniversityDiscovery() {
     };
 
     return (
-        <div className="min-h-screen pt-24 px-4 pb-12">
-            <div className="max-w-7xl mx-auto space-y-8">
+        <div className="min-h-screen bg-transparent pb-24 flex flex-col items-center">
+            {/* Top Bar - Strictly Synced with Dashboard */}
+            <nav className="fixed top-0 left-0 w-full bg-white/90 backdrop-blur-md z-[100] border-b border-nature-forest/5 px-16 py-8">
+                <div className="flex items-center justify-between w-full">
+                    <div className="flex items-center gap-3 cursor-pointer group" onClick={() => router.push("/")}>
+                        <div className="w-10 h-10 bg-nature-forest rounded-xl flex items-center justify-center shadow-lg shadow-nature-forest/20 group-hover:scale-105 transition-all">
+                            <Sprout className="text-white w-5 h-5" />
+                        </div>
+                        <div className="flex flex-col">
+                            <span className="font-black text-lg tracking-tighter text-nature-forest uppercase leading-none">Academic Arboretum</span>
+                            <span className="text-[10px] font-bold text-nature-sage uppercase tracking-[0.2em] mt-1">Discovery Engine</span>
+                        </div>
+                    </div>
 
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                    <div className="space-y-2">
+                    <div className="flex items-center gap-6">
                         <Link href="/dashboard">
-                            <button className="flex items-center gap-2 text-foreground/50 hover:text-white transition-colors mb-4">
-                                <ArrowLeft size={18} />
-                                Dashboard
+                            <button className="flex items-center gap-2 px-6 py-2.5 rounded-full border border-nature-forest/10 hover:bg-nature-forest hover:text-white text-nature-forest text-[10px] font-black uppercase tracking-widest transition-all active:scale-95">
+                                <ArrowLeft size={14} />
+                                Back to Soil
                             </button>
                         </Link>
-                        <h1 className="text-4xl font-bold">University Discovery</h1>
-                        <p className="text-foreground/50 max-w-xl">
-                            Based on your profile, we&apos;ve mapped out {UNIVERSITIES.length} constellations that match your goals.
-                        </p>
+                        <div className="w-10 h-10 rounded-full border border-nature-sage/20 p-0.5">
+                            <div className="w-full h-full bg-nature-sage/10 rounded-full flex items-center justify-center text-nature-forest font-black text-xs">
+                                {user?.email?.[0].toUpperCase() || "A"}
+                            </div>
+                        </div>
                     </div>
+                </div>
+            </nav>
 
-                    <div className="flex gap-3 h-fit">
-                        <div className="relative">
-                            <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground/40" />
-                            <input
-                                type="text"
-                                placeholder="Search universities..."
-                                className="bg-white/5 border border-glass-border rounded-xl pl-10 pr-4 py-3 outline-none focus:border-star-blue text-sm"
+            <div className="h-16" /> {/* Navigation Buffer */}
+
+            <main className="w-full max-w-5xl pt-44 px-6 lg:px-0">
+                <div className="flex flex-col gap-12">
+
+                    {/* Header Controls */}
+                    <header className="premium-card p-12">
+                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-10">
+                            <div className="space-y-3">
+                                <div className="flex items-center gap-2">
+                                    <Compass className="text-nature-leaf w-4 h-4" />
+                                    <span className="text-nature-forest/40 text-[10px] font-black uppercase tracking-[0.25em]">Habitat Discovery</span>
+                                </div>
+                                <h1 className="text-4xl font-black text-nature-forest tracking-tighter leading-none">
+                                    University Constellations
+                                </h1>
+                                <p className="text-sm font-bold text-nature-forest/40 max-w-xl leading-relaxed">
+                                    We&apos;ve analyzed your academic genome against thousands of data points. These {UNIVERSITIES.length} institutions offer the richest soil for your growth.
+                                </p>
+                            </div>
+
+                            <div className="flex gap-4 w-full md:w-auto">
+                                <div className="relative flex-1 md:w-[480px]">
+                                    <input
+                                        type="text"
+                                        placeholder="SEARCH UNIVERSITIES..."
+                                        className="w-full bg-nature-forest/5 border border-nature-forest/5 rounded-2xl px-8 py-5 outline-none focus:border-nature-leaf/30 text-[11px] font-black uppercase tracking-[0.2em] text-nature-forest shadow-inner"
+                                    />
+                                </div>
+                                <button className="p-4 bg-nature-forest/5 rounded-2xl border border-nature-forest/5 hover:border-nature-leaf/30 transition-all text-nature-forest">
+                                    <Filter size={20} />
+                                </button>
+                            </div>
+                        </div>
+                    </header>
+
+                    {/* Locked Status Banner - Premium Style */}
+                    <AnimatePresence>
+                        {lockedId && (
+                            <motion.div
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: "auto" }}
+                                exit={{ opacity: 0, height: 0 }}
+                                className="overflow-hidden"
+                            >
+                                <div className="p-8 rounded-[32px] bg-nature-forest text-white flex items-center gap-6 shadow-2xl shadow-nature-forest/20">
+                                    <div className="w-14 h-14 rounded-2xl bg-nature-leaf/20 flex items-center justify-center flex-shrink-0 text-nature-leaf shadow-inner">
+                                        <Sparkles size={28} />
+                                    </div>
+                                    <div className="flex-1">
+                                        <h4 className="font-black text-lg uppercase tracking-tight leading-none">Strategic Focus Rooted</h4>
+                                        <p className="text-xs text-white/50 font-bold uppercase tracking-widest mt-2 block">
+                                            {UNIVERSITIES.find(u => u.id === lockedId)?.name} is now your primary target.
+                                        </p>
+                                    </div>
+                                    <button
+                                        onClick={() => router.push("/dashboard")}
+                                        className="px-8 py-4 bg-nature-leaf text-nature-forest rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-[#328f6d] transition-all"
+                                    >
+                                        Inspect Roadmap
+                                    </button>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+
+                    {/* University Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                        {UNIVERSITIES.map((uni) => (
+                            <UniversityCard
+                                key={uni.id}
+                                uni={uni}
+                                onLock={handleLock}
+                                isLocked={lockedId === uni.id}
                             />
-                        </div>
-                        <button className="p-3 glass rounded-xl border-white/10 hover:border-star-blue transition-colors text-foreground/60 hover:text-white">
-                            <Filter size={20} />
-                        </button>
+                        ))}
                     </div>
+
+                    {/* Empty State / Warning if nothing locked */}
+                    {!lockedId && (
+                        <div className="p-16 premium-card border-dashed border-nature-forest/10 flex flex-col items-center text-center space-y-6">
+                            <div className="w-20 h-20 rounded-3xl bg-[#E14D4D]/5 flex items-center justify-center text-[#E14D4D]">
+                                <AlertTriangle size={40} />
+                            </div>
+                            <div className="space-y-2">
+                                <h3 className="text-2xl font-black text-nature-forest uppercase tracking-tighter">Commitment Required</h3>
+                                <p className="text-sm font-bold text-nature-forest/40 max-w-sm mx-auto leading-relaxed uppercase tracking-widest">
+                                    Lock at least one habitat to germinate your personalized application timeline and growth intelligence.
+                                </p>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Sub-Brand Footer Line */}
+                    <footer className="mt-12 opacity-20 flex justify-between items-center text-[9px] font-black uppercase tracking-[0.4em] text-nature-forest">
+                        <span>Habitat Discovery Engine v2.0</span>
+                        <span>© 2026 Academic Arboretum</span>
+                    </footer>
+
                 </div>
+            </main>
 
-                {lockedId && (
-                    <div className="p-4 rounded-2xl bg-star-purple/10 border border-star-purple/30 text-star-purple flex items-center gap-4 animate-in fade-in slide-in-from-top-4 duration-500">
-                        <div className="w-10 h-10 rounded-full bg-star-purple/20 flex items-center justify-center flex-shrink-0">
-                            <Info size={20} />
-                        </div>
-                        <div>
-                            <h4 className="font-bold text-sm">Strategic Focus Locked</h4>
-                            <p className="text-xs opacity-70">Your application guidance for {UNIVERSITIES.find(u => u.id === lockedId)?.name} is now available in your dashboard.</p>
-                        </div>
-                        <Link href="/dashboard" className="ml-auto">
-                            <button className="px-4 py-2 bg-star-purple text-white rounded-lg text-xs font-bold hover:opacity-80 transition-all">
-                                View Roadmap
-                            </button>
-                        </Link>
-                    </div>
-                )}
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {UNIVERSITIES.map((uni) => (
-                        <UniversityCard
-                            key={uni.id}
-                            uni={uni}
-                            onLock={handleLock}
-                            isLocked={lockedId === uni.id}
-                        />
-                    ))}
-                </div>
-
-                {!lockedId && (
-                    <div className="p-8 glass rounded-3xl border-dashed border-red-500/20 text-center space-y-4">
-                        <div className="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center mx-auto text-red-400">
-                            <AlertTriangle size={24} />
-                        </div>
-                        <h3 className="text-xl font-bold">Decision Required</h3>
-                        <p className="text-foreground/40 text-sm max-w-md mx-auto">
-                            To unlock Stage 4 (Application Guidance), you must lock at least one university. This ensures focus and momentum in your preparation.
-                        </p>
-                    </div>
-                )}
-
-            </div>
-
+            {/* Success Toast Upgrade */}
             <AnimatePresence>
                 {showAlert && (
                     <motion.div
-                        initial={{ opacity: 0, y: 50 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 50 }}
-                        className="fixed bottom-8 right-8 z-[60] bg-star-blue text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3"
+                        initial={{ x: 100, opacity: 0 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        exit={{ x: 100, opacity: 0 }}
+                        className="fixed bottom-12 right-12 z-[100] bg-nature-forest text-white px-8 py-4 rounded-2xl shadow-2xl flex items-center gap-4 border border-nature-leaf/20"
                     >
-                        <BadgeCheck className="text-star-cyan" />
-                        <span className="font-bold text-sm">Decision Locked Successfully!</span>
+                        <div className="w-6 h-6 rounded-full bg-nature-leaf flex items-center justify-center">
+                            <Sparkles size={14} className="text-nature-forest" />
+                        </div>
+                        <span className="font-black text-[10px] uppercase tracking-widest">Target Rooted Successfully</span>
                     </motion.div>
                 )}
             </AnimatePresence>
         </div>
-    );
-}
-
-function BadgeCheck(props: any) {
-    return (
-        <svg
-            {...props}
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-        >
-            <path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z" />
-            <path d="m9 12 2 2 4-4" />
-        </svg>
     );
 }

@@ -4,26 +4,26 @@
   --background: #fbfcfb;
   --foreground: #1a2a23;
   
-  /* Glass Arboretum Elite Palette */
-  --nature-sage: #8bad95;
+  /* Glass Arboretum Elite Palette - Refined Contrast */
+  --nature-sage: #7a9c84;
   --nature-forest: #1e332a;
-  --nature-leaf: #3fb68b;
-  --nature-gold: #c5a059;
+  --nature-leaf: #2d9e76;
+  --nature-gold: #b08d4a; /* Desaturated for better text contrast */
   --nature-cream: #f4f7f5;
   
-  --glass-bg: rgba(255, 255, 255, 0.65);
-  --glass-border: rgba(30, 51, 42, 0.08);
+  --glass-bg: rgba(255, 255, 255, 0.92); /* Increased opacity for readability */
+  --glass-border: rgba(30, 51, 42, 0.12);
   --accent: #1e332a;
   
-  --shadow-premium: 0 20px 50px -12px rgba(30, 51, 42, 0.15);
-  --shadow-soft-gold: 0 10px 30px -5px rgba(197, 160, 89, 0.1);
+  --shadow-premium: 0 10px 40px -15px rgba(30, 51, 42, 0.1);
+  --shadow-soft-gold: 0 10px 30px -5px rgba(197, 160, 89, 0.05);
 }
 
 @theme {
-  --color-sage: var(--nature-sage);
-  --color-forest: var(--nature-forest);
-  --color-leaf: var(--nature-leaf);
-  --color-gold: var(--nature-gold);
+  --color-nature-sage: var(--nature-sage);
+  --color-nature-forest: var(--nature-forest);
+  --color-nature-leaf: var(--nature-leaf);
+  --color-nature-gold: var(--nature-gold);
 }
 
 * {
@@ -66,14 +66,36 @@ body {
   100% { transform: translate(100px, 100px) scale(1.2); }
 }
 
-/* Glassmorphism */
+/* Structural Glassmorphism - Predictable Contrast */
 .glass {
   background: var(--glass-bg);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--glass-border);
   box-shadow: var(--shadow-premium);
-  border-radius: 32px;
+  border-radius: 24px;
+  transition: all 0.3s ease;
+}
+
+.premium-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-premium);
+  border-radius: 24px;
+  padding: 2.5rem; /* Equivalent to p-10 */
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+/* Fix Typography - Prevent Overlaps */
+h1, h2, h3, h4, p, span {
+  line-height: 1.4;
+  letter-spacing: -0.01em;
 }
 
 .btn-premium {
@@ -178,4 +200,54 @@ body {
   background: rgba(255, 255, 255, 0.6);
   color: rgba(139, 173, 149, 0.4);
   transform: scale(0.9);
+}
+
+/* Range Input Styling */
+input[type="range"] {
+  -webkit-appearance: none;
+  width: 100%;
+  background: transparent;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 6px;
+  background: rgba(30, 51, 42, 0.1);
+  border-radius: 10px;
+  border: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 24px;
+  width: 24px;
+  border-radius: 50%;
+  background: var(--nature-forest);
+  cursor: pointer;
+  margin-top: -9px; /* Centers thumb on track */
+  box-shadow: 0 4px 15px rgba(30, 51, 42, 0.2);
+  transition: all 0.3s ease;
+  border: 2px solid white;
+}
+
+input[type="range"]:active::-webkit-slider-thumb {
+  transform: scale(1.2);
+  background: var(--nature-leaf);
+}
+
+input[type="range"]::-moz-range-track {
+  width: 100%;
+  height: 6px;
+  background: rgba(30, 51, 42, 0.1);
+  border-radius: 10px;
+}
+
+input[type="range"]::-moz-range-thumb {
+  height: 24px;
+  width: 24px;
+  border-radius: 50%;
+  background: var(--nature-forest);
+  cursor: pointer;
+  border: 2px solid white;
+  box-shadow: 0 4px 15px rgba(30, 51, 42, 0.2);
 }

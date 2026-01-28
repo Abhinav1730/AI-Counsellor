@@ -8,16 +8,17 @@ import { cn } from '@/lib/utils';
 const BotanicalBackground = () => {
     const pathname = usePathname();
     const isInternalPage = pathname?.includes('/onboarding') || pathname?.includes('/dashboard') || pathname?.includes('/universities');
+    const isAuthPage = pathname?.includes('/login') || pathname?.includes('/signup');
 
     return (
         <div className="arboretum-layers">
             {/* Background Image Overlay */}
             <div className={cn(
-                "absolute inset-0 grayscale pointer-events-none transition-opacity duration-1000",
-                isInternalPage ? "opacity-[0.08]" : "opacity-[0.03]"
+                "absolute inset-0 pointer-events-none transition-opacity duration-1000",
+                isAuthPage ? "opacity-[0.25] grayscale-0" : isInternalPage ? "opacity-[0.08] grayscale" : "opacity-[0.03] grayscale"
             )}>
                 <Image
-                    src="/hero_bg.png"
+                    src={isAuthPage ? "/auth-bg.png" : "/hero_bg.png"}
                     alt="background"
                     fill
                     className="object-cover"
