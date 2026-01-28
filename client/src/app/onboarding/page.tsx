@@ -10,24 +10,26 @@ import {
     ClipboardCheck,
     ArrowRight,
     ArrowLeft,
-    Sprout,
-    Leaf
+    Leaf,
+    Shield
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import axios from "axios";
+import { cn } from "@/lib/utils";
 
 const API_BASE_URL = "http://localhost:5000/api";
 
 const STEPS = [
-    { id: "academic", title: "Academic Soil", icon: <GraduationCap /> },
-    { id: "goals", title: "Growth Goals", icon: <Target /> },
-    { id: "budget", title: "Resource Plan", icon: <Wallet /> },
-    { id: "readiness", title: "Readiness", icon: <ClipboardCheck /> },
+    { id: "academic", title: "Academic Soil", icon: <GraduationCap />, tag: "Phase 01" },
+    { id: "goals", title: "Growth Goals", icon: <Target />, tag: "Phase 02" },
+    { id: "budget", title: "Resource Plan", icon: <Wallet />, tag: "Phase 03" },
+    { id: "readiness", title: "Vibrant Readiness", icon: <ClipboardCheck />, tag: "Phase 04" },
 ];
 
 export default function Onboarding() {
     const router = useRouter();
     const [currentStep, setCurrentStep] = useState(0);
+    const [direction, setDirection] = useState(0); // -1 for back, 1 for next
     const [formData, setFormData] = useState({
         educationLevel: "",
         major: "",
@@ -44,6 +46,7 @@ export default function Onboarding() {
 
     const handleNext = async () => {
         if (currentStep < STEPS.length - 1) {
+            setDirection(1);
             setCurrentStep(currentStep + 1);
         } else {
             try {
@@ -53,7 +56,6 @@ export default function Onboarding() {
                     return;
                 }
 
-                // Save to backend
                 await axios.post(`${API_BASE_URL}/profile`, {
                     userId: user.id,
                     data: {
@@ -71,233 +73,299 @@ export default function Onboarding() {
     };
 
     const handleBack = () => {
-        if (currentStep > 0) setCurrentStep(currentStep - 1);
+        if (currentStep > 0) {
+            setDirection(-1);
+            setCurrentStep(currentStep - 1);
+        }
     };
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center p-4">
-            {/* Progress Bar */}
-            <div className="w-full max-w-2xl mb-12 flex justify-between relative px-2">
-                <div className="absolute top-1/2 left-0 w-full h-0.5 bg-nature-sage/10 -translate-y-1/2 -z-10" />
+        <div className="min-h-screen flex flex-col items-center justify-center p-6 pb-24">
+            {/* Progress Eco-System */}
+            <div className="w-full max-w-3xl mb-0 relative px-4 flex justify-between -translate-x-12">
+                <div className="progress-line-bg" />
                 <div
-                    className="absolute top-1/2 left-0 h-1 bg-nature-forest -translate-y-1/2 -z-10 transition-all duration-700 rounded-full"
+                    className="progress-line-active"
                     style={{ width: `${(currentStep / (STEPS.length - 1)) * 100}%` }}
                 />
 
                 {STEPS.map((step, i) => (
-                    <div
-                        key={step.id}
-                        className={`w-12 h-12 rounded-2xl flex items-center justify-center border-2 transition-all duration-500 shadow-sm ${i <= currentStep ? 'bg-nature-forest border-nature-forest shadow-nature-forest/20' : 'bg-white border-nature-sage/10'
-                            }`}
-                    >
-                        {(step.icon as any) && React.cloneElement(step.icon as React.ReactElement<any>, { size: 20, className: i <= currentStep ? 'text-white' : 'text-nature-sage/50' })}
+                    <div key={step.id} className="flex flex-col items-center gap-4 relative">
+                        <div
+                            className={cn(
+                                "step-dot",
+                                i <= currentStep ? "step-dot-active" : "step-dot-inactive"
+                            )}
+                        >
+                            {React.cloneElement(step.icon as React.ReactElement<any>, {
+                                size: 24,
+                                strokeWidth: 1.5,
+                                className: i <= currentStep ? 'text-white' : 'text-nature-sage/40'
+                            })}
+                        </div>
+                        {i === currentStep && (
+                            <motion.span
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="text-[10px] font-black uppercase tracking-[0.15em] text-nature-forest absolute -bottom-8 whitespace-nowrap"
+                            >
+                                {step.id}
+                            </motion.span>
+                        )}
                     </div>
                 ))}
             </div>
 
+            {/* Spacer */}
+            <div className="h-24 md:h-32 w-full" />
+
             {/* Form Card */}
-            <motion.div
-                key={currentStep}
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                className="w-full max-w-2xl glass p-10 rounded-3xl"
-            >
-                <div className="flex items-center gap-3 mb-16">
-                    <div className="p-3 rounded-2xl bg-nature-sage/10 text-nature-forest shadow-inner">
-                        {React.cloneElement(STEPS[currentStep].icon as React.ReactElement<any>, { size: 28 })}
-                    </div>
-                    <div>
-                        <p className="text-[10px] font-bold text-nature-sage uppercase tracking-widest">Phase {currentStep + 1}</p>
-                        <h2 className="text-3xl font-bold text-nature-forest leading-tight">{STEPS[currentStep].title}</h2>
-                    </div>
-                </div>
+            <AnimatePresence mode="wait" custom={direction}>
+                <motion.div
+                    key={currentStep}
+                    custom={direction}
+                    initial={{ opacity: 0, x: direction * 50, scale: 0.98 }}
+                    animate={{ opacity: 1, x: 0, scale: 1 }}
+                    exit={{ opacity: 0, x: -direction * 50, scale: 0.98 }}
+                    transition={{ duration: 0.6, ease: [0.19, 1, 0.22, 1] }}
+                    className="w-full max-w-3xl glass p-16 md:p-24 rounded-2xl shadow-premium relative overflow-hidden"
+                >
 
-                <div className="space-y-6">
-                    {currentStep === 0 && (
-                        <div className="space-y-6">
-                            <div className="space-y-2">
-                                <label className="text-xs font-bold text-nature-forest/50 uppercase tracking-wider ml-1">Highest Education Level</label>
-                                <select
-                                    className="w-full bg-white/50 border border-nature-sage/20 p-4 rounded-xl outline-none focus:border-nature-forest appearance-none text-nature-forest font-medium"
-                                    onChange={(e) => setFormData({ ...formData, educationLevel: e.target.value })}
-                                    value={formData.educationLevel}
-                                >
-                                    <option value="">Select Level</option>
-                                    <option value="highschool">High School</option>
-                                    <option value="bachelors">Bachelor's Degree</option>
-                                    <option value="masters">Master's Degree</option>
-                                </select>
-                            </div>
-                            <div className="grid grid-cols-2 gap-6">
-                                <div className="space-y-2">
-                                    <label className="text-xs font-bold text-nature-forest/50 uppercase tracking-wider ml-1">Major / Subject</label>
-                                    <input
-                                        type="text"
-                                        placeholder="Computer Science"
-                                        className="w-full bg-white/50 border border-nature-sage/20 p-4 rounded-xl outline-none focus:border-nature-forest text-nature-forest placeholder:text-nature-forest/30 font-medium"
-                                        onChange={(e) => setFormData({ ...formData, major: e.target.value })}
-                                        value={formData.major}
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-xs font-bold text-nature-forest/50 uppercase tracking-wider ml-1">GPA / Percentage</label>
-                                    <input
-                                        type="text"
-                                        placeholder="3.8 or 85%"
-                                        className="w-full bg-white/50 border border-nature-sage/20 p-4 rounded-xl outline-none focus:border-nature-forest text-nature-forest placeholder:text-nature-forest/30 font-medium"
-                                        onChange={(e) => setFormData({ ...formData, gpa: e.target.value })}
-                                        value={formData.gpa}
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    )}
+                    <div className="flex flex-col items-center text-center mb-12 relative z-10">
+                        <span className="text-[11px] font-black text-nature-sage uppercase tracking-[0.3em] mb-3">
+                            {STEPS[currentStep].tag}
+                        </span>
+                        <h2 className="text-4xl md:text-5xl font-black text-nature-forest leading-tight tracking-tight">
+                            {STEPS[currentStep].title}
+                        </h2>
+                    </div>
 
-                    {currentStep === 1 && (
-                        <div className="space-y-6">
-                            <div className="space-y-2">
-                                <label className="text-xs font-bold text-nature-forest/50 uppercase tracking-wider ml-1">Intended Degree</label>
-                                <select
-                                    className="w-full bg-white/50 border border-nature-sage/20 p-4 rounded-xl outline-none focus:border-nature-forest text-nature-forest font-medium"
-                                    onChange={(e) => setFormData({ ...formData, intendedDegree: e.target.value })}
-                                    value={formData.intendedDegree}
-                                >
-                                    <option value="">Select Degree</option>
-                                    <option value="masters">Master's (MS/MA)</option>
-                                    <option value="mba">MBA</option>
-                                    <option value="phd">PhD</option>
-                                    <option value="bachelors">Bachelor's</option>
-                                </select>
+                    <div className="space-y-6 relative z-10">
+                        {currentStep === 0 && (
+                            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+                                <div className="field-container">
+                                    <label className="field-label">Educational Foundation</label>
+                                    <div className="relative">
+                                        <select
+                                            className="field-select"
+                                            onChange={(e) => setFormData({ ...formData, educationLevel: e.target.value })}
+                                            value={formData.educationLevel}
+                                        >
+                                            <option value="">Select Level</option>
+                                            <option value="highschool">High School</option>
+                                            <option value="bachelors">Bachelor&apos;s Degree</option>
+                                            <option value="masters">Master&apos;s Degree</option>
+                                        </select>
+                                        <div className="absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none opacity-30">
+                                            <GraduationCap size={16} />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="field-container">
+                                        <label className="field-label">Field of Vitality</label>
+                                        <input
+                                            type="text"
+                                            placeholder="e.g. Computer Science"
+                                            className="field-input"
+                                            onChange={(e) => setFormData({ ...formData, major: e.target.value })}
+                                            value={formData.major}
+                                        />
+                                    </div>
+                                    <div className="field-container">
+                                        <label className="field-label">Yield / GPA</label>
+                                        <input
+                                            type="text"
+                                            placeholder="3.8 or 85%"
+                                            className="field-input"
+                                            onChange={(e) => setFormData({ ...formData, gpa: e.target.value })}
+                                            value={formData.gpa}
+                                        />
+                                    </div>
+                                </div>
                             </div>
-                            <div className="grid grid-cols-2 gap-6">
-                                <div className="space-y-2">
-                                    <label className="text-xs font-bold text-nature-forest/50 uppercase tracking-wider ml-1">Preferred Country</label>
+                        )}
+
+                        {currentStep === 1 && (
+                            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+                                <div className="field-container">
+                                    <label className="field-label">Desired Ecosystem</label>
                                     <select
-                                        className="w-full bg-white/50 border border-nature-sage/20 p-4 rounded-xl outline-none focus:border-nature-forest text-nature-forest font-medium"
-                                        onChange={(e) => setFormData({ ...formData, preferredCountry: e.target.value })}
-                                        value={formData.preferredCountry}
+                                        className="field-select"
+                                        onChange={(e) => setFormData({ ...formData, intendedDegree: e.target.value })}
+                                        value={formData.intendedDegree}
                                     >
-                                        <option value="">Select Country</option>
-                                        <option value="usa">USA</option>
-                                        <option value="uk">UK</option>
-                                        <option value="canada">Canada</option>
-                                        <option value="germany">Germany</option>
+                                        <option value="">Select Target Degree</option>
+                                        <option value="masters">Master&apos;s (MS/MA)</option>
+                                        <option value="mba">MBA</option>
+                                        <option value="phd">PhD</option>
+                                        <option value="bachelors">Bachelor&apos;s</option>
                                     </select>
                                 </div>
-                                <div className="space-y-2">
-                                    <label className="text-xs font-bold text-nature-forest/50 uppercase tracking-wider ml-1">Target Intake Year</label>
-                                    <input
-                                        type="text"
-                                        placeholder="2025"
-                                        className="w-full bg-white/50 border border-nature-sage/20 p-4 rounded-xl outline-none focus:border-nature-forest text-nature-forest placeholder:text-nature-forest/30 font-medium"
-                                        onChange={(e) => setFormData({ ...formData, targetIntake: e.target.value })}
-                                        value={formData.targetIntake}
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {currentStep === 2 && (
-                        <div className="space-y-8">
-                            <div className="space-y-4">
-                                <label className="text-xs font-bold text-nature-forest/50 uppercase tracking-wider ml-1">Annual Budget Target (USD)</label>
-                                <input
-                                    type="range"
-                                    min="5000" max="100000" step="5000"
-                                    className="w-full accent-nature-forest"
-                                    onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
-                                    value={formData.budget}
-                                />
-                                <div className="flex justify-between text-xs font-bold text-nature-forest/40">
-                                    <span>$5k</span>
-                                    <span className="text-nature-forest bg-nature-sage/10 px-4 py-1 rounded-full text-sm">${Number(formData.budget).toLocaleString()}</span>
-                                    <span>$100k+</span>
-                                </div>
-                            </div>
-                            <div className="space-y-4">
-                                <label className="text-xs font-bold text-nature-forest/50 uppercase tracking-wider ml-1">Primary Funding Source</label>
-                                <div className="grid grid-cols-3 gap-4">
-                                    {['Self', 'Loan', 'Scholarship'].map(source => (
-                                        <button
-                                            key={source}
-                                            onClick={() => setFormData({ ...formData, funding: source })}
-                                            className={`p-5 rounded-2xl border-2 transition-all font-bold text-sm ${formData.funding === source
-                                                ? 'bg-nature-forest border-nature-forest text-white shadow-lg'
-                                                : 'bg-white border-nature-sage/10 text-nature-forest/40 hover:border-nature-forest/20'
-                                                }`}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="field-container">
+                                        <label className="field-label">Climate / Country</label>
+                                        <select
+                                            className="field-select"
+                                            onChange={(e) => setFormData({ ...formData, preferredCountry: e.target.value })}
+                                            value={formData.preferredCountry}
                                         >
-                                            {source}
-                                        </button>
-                                    ))}
+                                            <option value="">USA, UK, Canada...</option>
+                                            <option value="usa">United States</option>
+                                            <option value="uk">United Kingdom</option>
+                                            <option value="canada">Canada</option>
+                                            <option value="germany">Germany</option>
+                                            <option value="australia">Australia</option>
+                                        </select>
+                                    </div>
+                                    <div className="field-container">
+                                        <label className="field-label">Growth Initiation</label>
+                                        <input
+                                            type="text"
+                                            placeholder="e.g. Fall 2025"
+                                            className="field-input"
+                                            onChange={(e) => setFormData({ ...formData, targetIntake: e.target.value })}
+                                            value={formData.targetIntake}
+                                        />
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    )}
+                        )}
 
-                    {currentStep === 3 && (
-                        <div className="space-y-8">
-                            <div className="space-y-2">
-                                <label className="text-xs font-bold text-nature-forest/50 uppercase tracking-wider ml-1">External Test Readiness (IELTS/TOEFL/GRE)</label>
-                                <select
-                                    className="w-full bg-white/50 border border-nature-sage/20 p-4 rounded-xl outline-none focus:border-nature-forest text-nature-forest font-medium"
-                                    onChange={(e) => setFormData({ ...formData, testStatus: e.target.value })}
-                                    value={formData.testStatus}
-                                >
-                                    <option value="">Select Status</option>
-                                    <option value="not-started">Not Started (Seed Phase)</option>
-                                    <option value="booked">Booked (Growth Phase)</option>
-                                    <option value="completed">Completed (Vibrant Phase)</option>
-                                </select>
-                            </div>
-                            <div className="space-y-4">
-                                <label className="text-xs font-bold text-nature-forest/50 uppercase tracking-wider ml-1">Statement of Purpose Status</label>
-                                <div className="grid grid-cols-3 gap-4">
-                                    {['Not Started', 'Drafting', 'Finalized'].map(status => (
-                                        <button
-                                            key={status}
-                                            onClick={() => setFormData({ ...formData, sopStatus: status })}
-                                            className={`p-5 rounded-2xl border-2 transition-all font-bold text-xs ${formData.sopStatus === status
-                                                ? 'bg-nature-forest border-nature-forest text-white shadow-lg'
-                                                : 'bg-white border-nature-sage/10 text-nature-forest/40 hover:border-nature-forest/20'
-                                                }`}
+                        {currentStep === 2 && (
+                            <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+                                <div className="space-y-6">
+                                    <label className="text-[10px] font-black text-nature-forest/40 uppercase tracking-[0.2em] ml-2">Resource Allocation (USD)</label>
+                                    <div className="px-2">
+                                        <input
+                                            type="range"
+                                            min="5000" max="100000" step="5000"
+                                            className="w-full h-1.5 bg-nature-forest/5 rounded-full appearance-none accent-nature-forest cursor-pointer"
+                                            onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
+                                            value={formData.budget}
+                                        />
+                                    </div>
+                                    <div className="flex justify-between items-center text-[10px] font-black text-nature-forest/30 px-2 uppercase tracking-widest">
+                                        <span>Scale: $5k</span>
+                                        <motion.span
+                                            key={formData.budget}
+                                            initial={{ scale: 1.1, color: "#1e332a" }}
+                                            animate={{ scale: 1, color: "#1e332a" }}
+                                            className="text-lg bg-nature-forest text-white px-8 py-2 rounded-2xl shadow-lg"
                                         >
-                                            {status}
-                                        </button>
-                                    ))}
+                                            ${Number(formData.budget).toLocaleString()}
+                                        </motion.span>
+                                        <span>Max: $100k+</span>
+                                    </div>
+                                </div>
+                                <div className="space-y-6">
+                                    <label className="text-[10px] font-black text-nature-forest/40 uppercase tracking-[0.2em] ml-2">Primary Nutrient Source</label>
+                                    <div className="grid grid-cols-3 gap-4">
+                                        {['Self', 'Loan', 'Grant'].map(source => (
+                                            <button
+                                                key={source}
+                                                type="button"
+                                                onClick={() => setFormData({ ...formData, funding: source })}
+                                                className={cn(
+                                                    "p-6 rounded-[28px] border border-nature-sage/10 transition-all duration-500 font-black text-xs uppercase tracking-widest",
+                                                    formData.funding === source
+                                                        ? 'bg-nature-forest border-nature-forest text-white shadow-xl -translate-y-1'
+                                                        : 'bg-white/40 border-nature-sage/5 text-nature-forest/30 hover:border-nature-sage/20'
+                                                )}
+                                            >
+                                                {source}
+                                            </button>
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    )}
-                </div>
+                        )}
 
-                {/* Navigation */}
-                <div className="flex justify-between items-center mt-16 pt-8 border-t border-nature-sage/10">
-                    <button
-                        onClick={handleBack}
-                        className={`px-6 py-4 rounded-2xl font-bold flex items-center gap-2 transition-all text-nature-forest/50 hover:text-nature-forest hover:bg-white/50 ${currentStep === 0 ? 'opacity-0 pointer-events-none' : ''
-                            }`}
-                    >
-                        <ArrowLeft size={18} />
-                        Back
-                    </button>
+                        {currentStep === 3 && (
+                            <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+                                <div className="field-container">
+                                    <label className="field-label">External Evaluation</label>
+                                    <select
+                                        className="field-select"
+                                        onChange={(e) => setFormData({ ...formData, testStatus: e.target.value })}
+                                        value={formData.testStatus}
+                                    >
+                                        <option value="">Current Status</option>
+                                        <option value="not-started">Seed Phase (Not Started)</option>
+                                        <option value="booked">Growth Phase (Booked)</option>
+                                        <option value="completed">Vibrant Phase (Completed)</option>
+                                    </select>
+                                </div>
+                                <div className="space-y-6">
+                                    <label className="text-[10px] font-black text-nature-forest/40 uppercase tracking-[0.2em] ml-2">Vision Statement (SOP)</label>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        {['Not Started', 'Drafting', 'Finalized'].map(status => (
+                                            <button
+                                                key={status}
+                                                type="button"
+                                                onClick={() => setFormData({ ...formData, sopStatus: status })}
+                                                className={cn(
+                                                    "p-6 rounded-[28px] border border-nature-sage/10 transition-all duration-500 font-black text-[10px] uppercase tracking-widest",
+                                                    formData.sopStatus === status
+                                                        ? 'bg-nature-forest border-nature-forest text-white shadow-xl -translate-y-1'
+                                                        : 'bg-white/40 border-nature-sage/5 text-nature-forest/30 hover:border-nature-sage/20'
+                                                )}
+                                            >
+                                                {status}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
 
-                    <button
-                        onClick={handleNext}
-                        className="btn-premium px-10 py-4 font-bold flex items-center gap-2 group shadow-xl"
-                    >
-                        {currentStep === STEPS.length - 1 ? 'Launch Profile' : 'Next Phase'}
-                        <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-                    </button>
-                </div>
-            </motion.div>
+                    {/* Navigation */}
+                    <div className="flex justify-between items-center mt-20 pt-10 border-t border-nature-forest/5 relative z-10">
+                        <button
+                            type="button"
+                            onClick={handleBack}
+                            className={cn(
+                                "flex items-center gap-3 px-8 py-4 rounded-full font-black text-[11px] uppercase tracking-[0.2em] transition-all",
+                                currentStep === 0
+                                    ? 'opacity-0 pointer-events-none'
+                                    : 'text-nature-forest/30 hover:text-nature-forest hover:bg-nature-forest/5'
+                            )}
+                        >
+                            <ArrowLeft size={16} strokeWidth={3} />
+                            Go Back
+                        </button>
+
+                        <button
+                            type="button"
+                            onClick={handleNext}
+                            className="btn-premium group shadow-2xl"
+                        >
+                            {currentStep === STEPS.length - 1 ? (
+                                <span className="flex items-center gap-3">
+                                    Launch Profile <Shield size={18} fill="currentColor" />
+                                </span>
+                            ) : (
+                                <span className="flex items-center gap-3">
+                                    Next Phase <ArrowRight size={18} strokeWidth={3} className="group-hover:translate-x-1 transition-transform" />
+                                </span>
+                            )}
+                        </button>
+                    </div>
+                </motion.div>
+            </AnimatePresence>
 
             {/* Footer Meta */}
-            <div className="mt-8 flex items-center gap-2 text-nature-forest/30 text-[10px] font-bold uppercase tracking-[0.2em]">
-                <Leaf size={12} className="text-nature-sage" />
-                Decisions are permanent once locked in the arboretum
-            </div>
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1 }}
+                className="mt-12 flex items-center gap-3 text-nature-forest/20 text-[10px] font-black uppercase tracking-[0.4em]"
+            >
+                <div className="w-1.5 h-1.5 rounded-full bg-nature-leaf animate-pulse" />
+                Decisions are permanent in the arboretum
+            </motion.div>
         </div>
     );
 }

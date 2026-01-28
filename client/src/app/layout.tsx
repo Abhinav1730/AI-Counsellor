@@ -19,7 +19,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.className} antialiased`}>
         <BotanicalBackground />
-        <main className="relative z-10 min-height-screen">
+        <main className="relative z-10 min-h-screen">
           {children}
         </main>
       </body>
