@@ -69,13 +69,13 @@ export default function ChatBox({ lockedUni }: { lockedUni?: any }) {
         scrollToBottom();
     }, [messages, isLoading]);
 
-    const handleSend = async () => {
-        if (!input.trim() || isLoading) return;
+    const handleSend = async (msg?: string) => {
+        const content = msg || input;
+        if (!content.trim() || isLoading) return;
 
-        const currentInput = input;
-        const userMsg: Message = { id: Date.now().toString(), role: "user", content: currentInput };
+        const userMsg: Message = { id: Date.now().toString(), role: "user", content: content };
         setMessages(prev => [...prev, userMsg]);
-        setInput("");
+        if (!msg) setInput(""); // Only clear input if typed
         setIsLoading(true);
 
         try {
@@ -88,7 +88,7 @@ export default function ChatBox({ lockedUni }: { lockedUni?: any }) {
             }
 
             const response = await axios.post(`${API_BASE_URL}/ai/chat`, {
-                message: currentInput,
+                message: content,
                 profile: profile,
                 stage: "Discovery",
                 lockedUniversity: lockedUni
@@ -132,7 +132,7 @@ export default function ChatBox({ lockedUni }: { lockedUni?: any }) {
             </div>
 
 
-            <div className="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar">
+            <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-6 custom-scrollbar">
                 <AnimatePresence>
                     {messages.map((msg) => (
                         <motion.div
@@ -166,7 +166,7 @@ export default function ChatBox({ lockedUni }: { lockedUni?: any }) {
                                                 {msg.actions.map((action, i) => (
                                                     <button
                                                         key={i}
-                                                        onClick={() => setInput(action.label)}
+                                                        onClick={() => handleSend(action.label)}
                                                         className="px-5 py-2.5 rounded-xl border border-nature-forest/10 bg-nature-forest/5 text-nature-forest text-[10px] font-black uppercase tracking-widest hover:bg-nature-forest hover:text-white transition-all flex items-center gap-2"
                                                     >
                                                         {action.type === 'shortlist' && <University size={12} />}
@@ -214,7 +214,7 @@ export default function ChatBox({ lockedUni }: { lockedUni?: any }) {
                         className="w-full bg-white border border-nature-forest/5 py-8 px-8 pr-24 rounded-2xl outline-none focus:border-nature-leaf/30 focus:shadow-lg focus:shadow-nature-forest/5 transition-all text-base font-bold text-nature-forest placeholder:text-nature-forest/30"
                     />
                     <button
-                        onClick={handleSend}
+                        onClick={() => handleSend()}
                         disabled={isLoading || !input.trim()}
                         className="absolute right-6 p-4 bg-nature-forest text-white rounded-xl hover:bg-nature-leaf disabled:opacity-50 disabled:hover:bg-nature-forest transition-all shadow-lg shadow-nature-forest/20 active:scale-95"
                     >

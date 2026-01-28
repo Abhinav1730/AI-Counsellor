@@ -97,28 +97,52 @@ export default function Dashboard() {
     return (
         <div className="min-h-screen bg-transparent pb-24 flex flex-col items-center">
             {/* Top Bar - Strictly Centered */}
-            <nav className="fixed top-0 left-0 w-full bg-white/90 backdrop-blur-md z-[100] border-b border-nature-forest/5 px-16 py-8">
-                <div className="flex items-center justify-between w-full">
-                    <div className="flex items-center gap-3 cursor-pointer group" onClick={() => router.push("/")}>
-                        <div className="w-10 h-10 bg-nature-forest rounded-xl flex items-center justify-center shadow-lg shadow-nature-forest/20 group-hover:scale-105 transition-all">
-                            <Sprout className="text-white w-5 h-5" />
+            <nav className="fixed top-0 left-0 w-full bg-white/90 backdrop-blur-md z-[100] border-b border-nature-forest/5 px-6 py-6 md:px-16 md:py-8">
+                <div className="flex flex-col md:flex-row items-center justify-between w-full">
+                    {/* Top Row on Mobile: Logo and Profile */}
+                    <div className="w-full md:w-auto flex justify-between items-center md:justify-start gap-3">
+                        <div className="flex items-center gap-3 cursor-pointer group" onClick={() => router.push("/")}>
+                            <div className="w-10 h-10 bg-nature-forest rounded-xl flex items-center justify-center shadow-lg shadow-nature-forest/20 group-hover:scale-105 transition-all">
+                                <Sprout className="text-white w-5 h-5" />
+                            </div>
+                            <div className="flex flex-col">
+                                <span className="font-black text-sm md:text-lg tracking-[-0.03em] text-nature-forest uppercase leading-none">Academic Arboretum</span>
+                                <span className="text-[10px] font-bold text-nature-sage uppercase tracking-[0.2em] mt-1">Growth Intelligence</span>
+                            </div>
                         </div>
-                        <div className="flex flex-col">
-                            <span className="font-black text-lg tracking-[-0.03em] text-nature-forest uppercase leading-none">Academic Arboretum</span>
-                            <span className="text-[10px] font-bold text-nature-sage uppercase tracking-[0.2em] mt-1">Growth Intelligence</span>
+
+                        {/* Mobile Profile Position (Visible on Mobile, Hidden on Desktop) */}
+                        <div className="flex md:hidden items-center gap-4">
+                            <button
+                                onClick={async () => {
+                                    await supabase.auth.signOut();
+                                    router.push("/login");
+                                }}
+                                className="w-10 h-10 rounded-full border border-nature-sage/20 flex items-center justify-center text-nature-forest/40 hover:text-nature-forest hover:bg-nature-forest/5 hover:border-nature-forest/30 transition-all"
+                                title="Sign Out"
+                            >
+                                <LogOut size={14} strokeWidth={2.5} />
+                            </button>
+                            <div className="w-10 h-10 rounded-full border border-nature-sage/20 p-0.5 pointer-events-none select-none">
+                                <div className="w-full h-full bg-nature-sage/10 rounded-full flex items-center justify-center text-nature-forest font-black text-xs">
+                                    {user.email?.[0].toUpperCase()}
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-                        <Link href="/universities">
-                            <button className="flex items-center gap-3 px-8 py-3 rounded-full bg-nature-forest/5 hover:bg-nature-forest hover:text-white text-nature-forest text-[10px] font-black uppercase tracking-widest transition-all shadow-xl shadow-nature-forest/5 active:scale-95 border border-nature-forest/10">
+                    {/* Center Button - Stacked on Mobile, Centered Absolute on Desktop */}
+                    <div className="relative mt-6 md:mt-0 md:absolute md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 w-full md:w-auto flex justify-center">
+                        <Link href="/universities" className="w-full md:w-auto">
+                            <button className="w-full md:w-auto flex items-center justify-center gap-3 px-8 py-5 md:py-3 rounded-full bg-nature-forest/5 hover:bg-nature-forest hover:text-white text-nature-forest text-xs md:text-[10px] font-black uppercase tracking-widest transition-all shadow-xl shadow-nature-forest/5 active:scale-95 border border-nature-forest/10">
                                 <Search size={14} strokeWidth={3} />
                                 {lockedUni ? "Seek Different Habitat" : "Find Your Habitat"}
                             </button>
                         </Link>
                     </div>
 
-                    <div className="flex items-center gap-4">
+                    {/* Desktop Profile Position (Hidden on Mobile) */}
+                    <div className="hidden md:flex items-center gap-4">
                         <button
                             onClick={async () => {
                                 await supabase.auth.signOut();
@@ -138,32 +162,34 @@ export default function Dashboard() {
                 </div>
             </nav>
 
-            <div className="h-16" /> {/* Navigation Buffer */}
+            <div className="h-48 md:h-16" /> {/* Navigation Buffer */}
 
-            <main className="w-full max-w-5xl pt-44 px-6 lg:px-0">
-                <div className="flex flex-col gap-12">
+            <main className="w-full max-w-5xl pt-12 md:pt-44 px-4 md:px-6 lg:px-0">
+                <div className="flex flex-col gap-8 md:gap-12">
 
                     {/* Header / Stage Row */}
-                    <header className="premium-card p-10">
-                        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-10">
+                    <header className="premium-card p-6 md:p-10">
+                        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-8 md:mb-10">
                             <div className="space-y-2">
                                 <div className="flex items-center gap-2">
                                     <div className="w-2 h-2 rounded-full bg-nature-leaf animate-pulse" />
                                     <span className="text-nature-forest/40 text-[10px] font-black uppercase tracking-[0.25em]">Phase Alignment</span>
                                 </div>
-                                <h1 className="text-4xl font-black text-nature-forest tracking-tighter leading-none">
+                                <h1 className="text-2xl md:text-4xl font-black text-nature-forest tracking-tighter leading-none">
                                     {stage === 4 ? "Final Preparation" : "Discovering Your Soil"}
                                 </h1>
                             </div>
-                            <div className="flex flex-col items-end">
-                                <span className="text-4xl font-black text-nature-forest leading-none">{Math.round((stage / 4) * 100)}%</span>
-                                <span className="text-nature-forest/30 text-[10px] font-black uppercase tracking-widest mt-2">Overall Momentum</span>
+                            <div className="flex flex-col items-end w-full md:w-auto">
+                                <div className="flex items-baseline justify-between w-full md:block md:w-auto">
+                                    <span className="text-3xl md:text-4xl font-black text-nature-forest leading-none">{Math.round((stage / 4) * 100)}%</span>
+                                    <span className="text-nature-forest/30 text-[10px] font-black uppercase tracking-widest md:mt-2 md:block">Overall Momentum</span>
+                                </div>
                             </div>
                         </div>
 
-                        <div className="flex gap-4">
+                        <div className="flex gap-2 md:gap-4">
                             {[1, 2, 3, 4].map((s) => (
-                                <div key={s} className="h-3 flex-1 rounded-full bg-nature-forest/5 relative overflow-hidden">
+                                <div key={s} className="h-2 md:h-3 flex-1 rounded-full bg-nature-forest/5 relative overflow-hidden">
                                     <AnimatePresence>
                                         {(s <= stage) && (
                                             <motion.div
@@ -179,42 +205,44 @@ export default function Dashboard() {
                     </header>
 
                     {/* Main Grid System */}
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-10 items-start">
 
                         {/* Primary Content (8 Columns) */}
-                        <div className="lg:col-span-8 space-y-10">
+                        <div className="lg:col-span-8 space-y-8 md:space-y-10">
 
                             {/* Strategic Roadmap - Now clearly structural */}
-                            <section className="premium-card p-12 text-center group">
-                                <div className="max-w-md mx-auto space-y-8">
-                                    <div className="w-20 h-20 mx-auto rounded-3xl bg-nature-forest/5 flex items-center justify-center text-nature-sage group-hover:bg-nature-forest group-hover:text-white transition-all duration-500">
-                                        {lockedUni ? <Leaf size={32} /> : <Lock size={32} />}
+                            <section className="premium-card p-8 md:p-12 text-center md:text-left group">
+                                <div className="flex flex-col md:flex-row items-center md:items-start gap-6 md:gap-8">
+                                    <div className="w-16 h-16 md:w-20 md:h-20 mx-auto md:mx-0 flex-shrink-0 rounded-3xl bg-nature-forest/5 flex items-center justify-center text-nature-sage group-hover:bg-nature-forest group-hover:text-white transition-all duration-500">
+                                        {lockedUni ? <Leaf size={28} className="md:w-8 md:h-8" /> : <Lock size={28} className="md:w-8 md:h-8" />}
                                     </div>
-                                    <div className="space-y-3">
-                                        <h3 className="text-2xl font-black text-nature-forest uppercase tracking-tighter">
-                                            {lockedUni ? lockedUni.name : "Strategic Roadmap Encrypted"}
-                                        </h3>
-                                        <p className="text-sm font-bold text-nature-forest/40 leading-relaxed max-w-lg mx-auto italic">
-                                            {lockedUni
-                                                ? (lockedUni.reasoning || "Your personalized timeline for admission is ready to germinate.")
-                                                : "Lock at least one university to germinate your personalized application timeline and growth intelligence."}
-                                        </p>
+                                    <div className="space-y-6 flex-1">
+                                        <div className="space-y-3">
+                                            <h3 className="text-xl md:text-2xl font-black text-nature-forest uppercase tracking-tighter">
+                                                {lockedUni ? lockedUni.name : "Strategic Roadmap Encrypted"}
+                                            </h3>
+                                            <p className="text-xs md:text-sm font-bold text-nature-forest/40 leading-relaxed max-w-lg mx-auto md:mx-0 italic">
+                                                {lockedUni
+                                                    ? (lockedUni.reasoning || "Your personalized timeline for admission is ready to germinate.")
+                                                    : "Lock at least one university to germinate your personalized application timeline and growth intelligence."}
+                                            </p>
+                                        </div>
+                                        {!lockedUni && (
+                                            <button
+                                                onClick={() => router.push("/universities")}
+                                                className="px-8 py-4 md:px-12 md:py-6 rounded-2xl bg-white border border-nature-forest/10 font-black text-[10px] md:text-xs uppercase tracking-[0.2em] text-nature-forest hover:bg-nature-forest hover:text-white transition-all shadow-xl shadow-nature-forest/5 active:scale-95"
+                                            >
+                                                Explore The Arboretum
+                                            </button>
+                                        )}
                                     </div>
-                                    {!lockedUni && (
-                                        <button
-                                            onClick={() => router.push("/universities")}
-                                            className="px-12 py-6 rounded-2xl bg-white border border-nature-forest/10 font-black text-xs uppercase tracking-[0.2em] text-nature-forest hover:bg-nature-forest hover:text-white transition-all shadow-xl shadow-nature-forest/5 active:scale-95"
-                                        >
-                                            Explore The Arboretum
-                                        </button>
-                                    )}
                                 </div>
                             </section>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
                                 {/* Ecosystem Metrics */}
-                                <div className="premium-card">
-                                    <header className="flex items-center justify-between mb-8 pb-4 border-b border-nature-forest/5">
+                                <div className="premium-card p-6 md:p-8">
+                                    <header className="flex items-center justify-between mb-6 md:mb-8 pb-4 border-b border-nature-forest/5">
                                         <h3 className="text-sm font-black text-nature-forest uppercase tracking-widest">Ecosystem</h3>
                                         <BarChart3 size={18} className="text-nature-sage" />
                                     </header>
@@ -234,8 +262,8 @@ export default function Dashboard() {
                                 </div>
 
                                 {/* Projections */}
-                                <div className="premium-card">
-                                    <header className="flex items-center justify-between mb-8 pb-4 border-b border-nature-forest/5">
+                                <div className="premium-card p-6 md:p-8">
+                                    <header className="flex items-center justify-between mb-6 md:mb-8 pb-4 border-b border-nature-forest/5">
                                         <h3 className="text-sm font-black text-nature-forest uppercase tracking-widest">Projections</h3>
                                         <Sparkles size={18} className="text-nature-gold" />
                                     </header>
@@ -281,7 +309,7 @@ export default function Dashboard() {
             </main>
 
             {/* Sub-Brand Footer Line */}
-            <footer className="w-full max-w-5xl mt-24 px-6 opacity-20 flex justify-between items-center text-[9px] font-black uppercase tracking-[0.4em] text-nature-forest">
+            <footer className="w-full max-w-5xl mt-24 px-6 opacity-20 flex flex-col md:flex-row gap-4 justify-between items-center text-[9px] font-black uppercase tracking-[0.4em] text-nature-forest text-center md:text-left">
                 <span>Botanical Intelligence Engine v2.0</span>
                 <span>© 2026 Academic Arboretum</span>
             </footer>
