@@ -14,10 +14,12 @@ app.use(express.json());
 
 const aiRouter = require('./routes/ai');
 const profileRouter = require('./routes/profile');
+const universitiesRouter = require('./routes/universities');
 
 // Routes
 app.use('/api/ai', aiRouter);
 app.use('/api/profile', profileRouter);
+app.use('/api/universities', universitiesRouter);
 
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'OK', message: 'Backend is running' });

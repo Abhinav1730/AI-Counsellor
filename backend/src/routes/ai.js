@@ -3,19 +3,23 @@ const router = express.Router();
 const axios = require('axios');
 
 router.post('/chat', async (req, res) => {
-  const { message, profile, stage } = req.body;
+  const { message, profile, stage, lockedUniversity } = req.body;
 
   try {
     const response = await axios.post(
       "https://openrouter.ai/api/v1/chat/completions",
       {
-        model: "google/gemini-2.0-flash-exp:free",
+        model: "arcee-ai/trinity-large-preview:free",
         messages: [
           {
             role: "system",
             content: `Act as a premium AI Counsellor for higher education. 
             User Profile: ${JSON.stringify(profile || {})}
             Current Stage: ${stage || 'Initial exploration'}
+            Target University (Locked): ${lockedUniversity ? JSON.stringify(lockedUniversity) : 'None selected yet'}
+            
+            If a university is locked, focus your advice specifically on getting into that institution.
+            Analyze their fit, risks, and provide actionable milestones.
             
             Provide a sophisticated, helpful response. 
             Return your response STRICTLY in the following JSON format:
@@ -28,8 +32,7 @@ router.post('/chat', async (req, res) => {
             }`
           },
           { role: "user", content: message }
-        ],
-        response_format: { type: "json_object" }
+        ]
       },
       {
         headers: {

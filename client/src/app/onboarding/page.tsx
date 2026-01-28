@@ -50,9 +50,17 @@ export default function Onboarding() {
         const checkUser = async () => {
             const { data: { session } } = await supabase.auth.getSession();
             if (!session) {
-                // We don't redirect immediately to allow demo-ing the UI, 
-                // but we warn that they'll need to sign up to save.
                 console.warn("No active session found. Progress won't be saved.");
+            } else {
+                try {
+                    const { data: profile } = await axios.get(`${API_BASE_URL}/profile/${session.user.id}`);
+                    if (profile?.onboarding_complete) {
+                        localStorage.setItem("onboarding_complete", "true");
+                        router.replace("/dashboard");
+                    }
+                } catch (error) {
+                    console.error("Profile check failed:", error);
+                }
             }
         };
         checkUser();
@@ -81,6 +89,7 @@ export default function Onboarding() {
                     }
                 });
 
+                localStorage.setItem("onboarding_complete", "true");
                 router.push("/dashboard");
             } catch (error: any) {
                 console.error("Onboarding error:", error);
@@ -269,8 +278,8 @@ export default function Onboarding() {
                                         <span>Scale: $5k</span>
                                         <motion.span
                                             key={formData.budget}
-                                            initial={{ scale: 1.1, color: "#1e332a" }}
-                                            animate={{ scale: 1, color: "#1e332a" }}
+                                            initial={{ scale: 1.1, color: "#e2e9e6ff" }}
+                                            animate={{ scale: 1, color: "#e2e9e6ff" }}
                                             className="text-lg bg-nature-forest text-white px-8 py-2 rounded-2xl shadow-lg"
                                         >
                                             ${Number(formData.budget).toLocaleString()}

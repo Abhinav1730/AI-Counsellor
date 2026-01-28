@@ -34,6 +34,7 @@ export default function Login() {
                 .single();
 
             if (profile?.onboarding_complete) {
+                localStorage.setItem("onboarding_complete", "true");
                 router.push("/dashboard");
             } else {
                 router.push("/onboarding");

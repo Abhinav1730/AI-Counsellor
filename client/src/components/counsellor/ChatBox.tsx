@@ -1,8 +1,7 @@
-"use client";
-
+// ... imports remain the same
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, Sparkles, University, Lock, CheckCircle, Info, Loader2 } from "lucide-react";
+import { Send, Sparkles, University, Lock, CheckCircle, Info, Loader2, Sprout } from "lucide-react";
 import axios from "axios";
 import { supabase } from "@/lib/supabase";
 
@@ -15,20 +14,49 @@ interface Message {
     actions?: { label: string; type: string; payload?: any }[];
 }
 
-const AI_AVATAR = "https://api.dicebear.com/7.x/bottts-neutral/svg?seed=counsellor&backgroundColor=05070a";
+const AI_AVATAR = "https://api.dicebear.com/7.x/bottts-neutral/svg?seed=arboretum&backgroundColor=1e332a";
 
-export default function ChatBox() {
+export default function ChatBox({ lockedUni }: { lockedUni?: any }) {
     const [messages, setMessages] = useState<Message[]>([
         {
             id: "1",
             role: "ai",
-            content: "Hello! I've analyzed your profile. Based on your GPA and budget, you have a strong chance at several mid-tier US universities. Shall we look at some 'Target' recommendations or discuss your 'Dream' schools?",
-            actions: [
-                { label: "Show recommendations", type: "recommend" },
-                { label: "Analyze my risks", type: "risk" }
-            ]
+            content: lockedUni
+                ? `Excellent choice committing to ${lockedUni.name}. I have analyzed its specific requirements against your profile. Shall we discuss your admission strategy for this habitat?`
+                : "Welcome to the Arboretum. I am your growth architect. How can I assist with your academic cultivation today?",
+            actions: lockedUni
+                ? [
+                    { label: `Draft SOP for ${lockedUni.name}`, type: "action" },
+                    { label: "Analyze Acceptance Odds", type: "risk" }
+                ]
+                : [
+                    { label: "Analyze my soil", type: "recommend" },
+                    { label: "Project risks", type: "risk" }
+                ]
         }
     ]);
+
+    // Update messages when lockedUni changes to ensure context is fresh
+    useEffect(() => {
+        if (lockedUni) {
+            setMessages(prev => {
+                // Avoid adding duplicate welcome messages if already present
+                if (prev.length === 1 && prev[0].role === 'ai') {
+                    return [{
+                        id: "1-updated",
+                        role: "ai",
+                        content: `Excellent choice committing to ${lockedUni.name}. I have analyzed its specific requirements against your profile. Shall we discuss your admission strategy for this habitat?`,
+                        actions: [
+                            { label: `Draft SOP for ${lockedUni.name}`, type: "action" },
+                            { label: "Analyze Acceptance Odds", type: "risk" }
+                        ]
+                    }];
+                }
+                return prev;
+            });
+        }
+    }, [lockedUni]);
+
     const [input, setInput] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -62,7 +90,8 @@ export default function ChatBox() {
             const response = await axios.post(`${API_BASE_URL}/ai/chat`, {
                 message: currentInput,
                 profile: profile,
-                stage: "Discovery"
+                stage: "Discovery",
+                lockedUniversity: lockedUni
             });
 
             const aiData = response.data;
@@ -78,7 +107,7 @@ export default function ChatBox() {
             const errorMsg: Message = {
                 id: Date.now().toString(),
                 role: "ai",
-                content: "I'm sorry, I'm having trouble connecting to my knowledge base right now. Please try again in a moment."
+                content: "My roots are momentarily tangled. Please allow me a moment to reconnect with the soil."
             };
             setMessages(prev => [...prev, errorMsg]);
         } finally {
@@ -87,8 +116,23 @@ export default function ChatBox() {
     };
 
     return (
-        <div className="flex flex-col h-[80vh] glass rounded-3xl overflow-hidden shadow-2xl relative">
-            <div className="flex-1 overflow-y-auto p-6 space-y-6">
+        <div className="flex flex-col h-[600px] bg-white/50 backdrop-blur-md border border-nature-forest/5 rounded-3xl overflow-hidden shadow-2xl relative">
+
+            {/* Header */}
+            <div className="p-6 bg-nature-forest/5 border-b border-nature-forest/5 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-xl bg-nature-forest flex items-center justify-center shadow-lg shadow-nature-forest/20">
+                        <Sprout className="text-white w-4 h-4" />
+                    </div>
+                    <div>
+                        <h3 className="text-xs font-black text-nature-forest uppercase tracking-widest leading-none">AI Oracle</h3>
+                        <span className="text-[9px] font-bold text-nature-sage uppercase tracking-[0.2em] mt-0.5 block">Online • Trinity Model</span>
+                    </div>
+                </div>
+            </div>
+
+
+            <div className="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar">
                 <AnimatePresence>
                     {messages.map((msg) => (
                         <motion.div
@@ -97,38 +141,42 @@ export default function ChatBox() {
                             animate={{ opacity: 1, y: 0 }}
                             className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
                         >
-                            <div className={`flex gap-4 max-w-[80%] ${msg.role === "user" ? "flex-row-reverse" : "flex-row"}`}>
-                                <div className={`w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center p-1 border shadow-lg ${msg.role === "ai" ? "bg-star-blue/20 border-star-blue/50" : "bg-white/5 border-white/10"
+                            <div className={`flex gap-4 max-w-[85%] ${msg.role === "user" ? "flex-row-reverse" : "flex-row"}`}>
+                                <div className={`w-8 h-8 rounded-xl flex-shrink-0 flex items-center justify-center shadow-md ${msg.role === "ai" ? "bg-nature-forest text-white" : "bg-nature-cream border border-nature-forest/10 text-nature-forest"
                                     }`}>
                                     {msg.role === "ai" ? (
-                                        <img src={AI_AVATAR} alt="AI" className="w-full h-full rounded-full" />
+                                        <Sparkles size={14} />
                                     ) : (
-                                        <div className="w-full h-full rounded-full bg-star-purple/20 flex items-center justify-center text-star-purple font-bold text-xs">U</div>
+                                        <span className="font-black text-[10px]">YOU</span>
                                     )}
                                 </div>
 
-                                <div className="space-y-4">
-                                    <div className={`p-4 rounded-2xl text-sm leading-relaxed shadow-sm ${msg.role === "ai"
-                                        ? "bg-white/5 border border-white/5 rounded-tl-none"
-                                        : "bg-star-blue text-white rounded-tr-none"
+                                <div className="space-y-3">
+                                    <div className={`p-5 rounded-2xl text-xs font-medium leading-relaxed shadow-sm ${msg.role === "ai"
+                                        ? "bg-white border border-nature-forest/5 text-nature-forest rounded-tl-none"
+                                        : "bg-nature-forest text-white rounded-tr-none"
                                         }`}>
                                         {msg.content}
                                     </div>
 
                                     {msg.actions && (
-                                        <div className="flex flex-wrap gap-2">
-                                            {msg.actions.map((action, i) => (
-                                                <button
-                                                    key={i}
-                                                    className="px-4 py-2 rounded-full border border-star-blue/30 bg-star-blue/10 text-star-cyan text-xs font-semibold hover:bg-star-blue/20 transition-all flex items-center gap-2"
-                                                >
-                                                    {action.type === 'shortlist' && <University size={14} />}
-                                                    {action.type === 'recommend' && <Sparkles size={14} />}
-                                                    {action.type === 'risk' && <Info size={14} />}
-                                                    {action.label}
-                                                </button>
-                                            ))}
-                                        </div>
+                                        <>
+                                            <div className="h-2" />
+                                            <div className="flex flex-wrap gap-3">
+                                                {msg.actions.map((action, i) => (
+                                                    <button
+                                                        key={i}
+                                                        onClick={() => setInput(action.label)}
+                                                        className="px-5 py-2.5 rounded-xl border border-nature-forest/10 bg-nature-forest/5 text-nature-forest text-[10px] font-black uppercase tracking-widest hover:bg-nature-forest hover:text-white transition-all flex items-center gap-2"
+                                                    >
+                                                        {action.type === 'shortlist' && <University size={12} />}
+                                                        {action.type === 'recommend' && <Sparkles size={12} />}
+                                                        {action.type === 'risk' && <Info size={12} />}
+                                                        {action.label}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </>
                                     )}
                                 </div>
                             </div>
@@ -141,37 +189,40 @@ export default function ChatBox() {
                             className="flex justify-start"
                         >
                             <div className="flex gap-4 items-center">
-                                <div className="w-10 h-10 rounded-full bg-star-blue/20 flex items-center justify-center">
-                                    <Loader2 className="w-5 h-5 text-star-blue animate-spin" />
+                                <div className="w-8 h-8 rounded-xl bg-nature-forest/10 flex items-center justify-center">
+                                    <Loader2 className="w-4 h-4 text-nature-forest animate-spin" />
                                 </div>
-                                <div className="p-4 rounded-2xl bg-white/5 border border-white/5 text-xs text-foreground/40 italic">
-                                    Counsellor is thinking...
+                                <div className="text-[10px] font-black text-nature-forest/30 uppercase tracking-widest animate-pulse">
+                                    Consulting the archives...
                                 </div>
                             </div>
                         </motion.div>
                     )}
                 </AnimatePresence>
+
                 <div ref={messagesEndRef} />
             </div>
 
-            <div className="p-4 bg-white/5 border-t border-white/5">
-                <div className="relative flex items-center">
+            <div className="p-6 bg-white/50 border-t border-nature-forest/5 backdrop-blur-sm">
+                <div className="relative flex items-center group">
                     <input
                         type="text"
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-                        placeholder="Ask your counsellor about university fits, risks, or next steps..."
-                        className="w-full bg-white/5 border border-glass-border p-4 pr-16 rounded-2xl outline-none focus:border-star-blue transition-all"
+                        placeholder="Inquire about your growth path..."
+                        className="w-full bg-white border border-nature-forest/5 py-8 px-8 pr-24 rounded-2xl outline-none focus:border-nature-leaf/30 focus:shadow-lg focus:shadow-nature-forest/5 transition-all text-base font-bold text-nature-forest placeholder:text-nature-forest/30"
                     />
                     <button
                         onClick={handleSend}
-                        className="absolute right-3 p-2 bg-star-blue text-white rounded-xl hover:bg-star-purple transition-all"
+                        disabled={isLoading || !input.trim()}
+                        className="absolute right-6 p-4 bg-nature-forest text-white rounded-xl hover:bg-nature-leaf disabled:opacity-50 disabled:hover:bg-nature-forest transition-all shadow-lg shadow-nature-forest/20 active:scale-95"
                     >
                         <Send size={20} />
                     </button>
                 </div>
             </div>
+
         </div>
     );
 }

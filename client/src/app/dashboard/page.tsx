@@ -15,10 +15,12 @@ import {
     CheckSquare,
     ArrowRight,
     Leaf,
-    Clock
+    Clock,
+    LogOut
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import axios from "axios";
+import ChatBox from "@/components/counsellor/ChatBox";
 
 const API_BASE_URL = "http://localhost:5000/api";
 
@@ -48,16 +50,23 @@ export default function Dashboard() {
             try {
                 const response = await axios.get(`${API_BASE_URL}/profile/${supabaseUser.id}`);
                 const profile = response.data;
+                const localOnboarding = localStorage.getItem("onboarding_complete");
 
-                if (!profile || !profile.onboarding_complete) {
+                if ((!profile || !profile.onboarding_complete) && localOnboarding !== "true") {
                     router.push("/onboarding");
                 } else {
-                    setUser({ ...supabaseUser, profile });
+                    setUser({ ...supabaseUser, profile: profile || { onboarding_complete: true } });
                     const lockedId = localStorage.getItem("lockedUni");
+                    const cachedData = localStorage.getItem("lockedUniData");
+
                     if (lockedId) {
-                        const module = await import("@/lib/mockUniversities");
-                        const uni = module.UNIVERSITIES.find((u: any) => u.id === lockedId);
-                        setLockedUni(uni);
+                        if (cachedData) {
+                            setLockedUni(JSON.parse(cachedData));
+                        } else {
+                            const module = await import("@/lib/mockUniversities");
+                            const uni = module.UNIVERSITIES.find((u: any) => u.id === lockedId);
+                            setLockedUni(uni);
+                        }
                         setStage(4);
                     }
                 }
@@ -100,13 +109,27 @@ export default function Dashboard() {
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-6">
+                    <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
                         <Link href="/universities">
-                            <button className="px-6 py-2.5 rounded-full bg-nature-forest hover:bg-[#15251d] text-white text-[10px] font-black uppercase tracking-widest transition-all shadow-xl shadow-nature-forest/10 active:scale-95">
-                                Plant Your Flag
+                            <button className="flex items-center gap-3 px-8 py-3 rounded-full bg-nature-forest/5 hover:bg-nature-forest hover:text-white text-nature-forest text-[10px] font-black uppercase tracking-widest transition-all shadow-xl shadow-nature-forest/5 active:scale-95 border border-nature-forest/10">
+                                <Search size={14} strokeWidth={3} />
+                                {lockedUni ? "Seek Different Habitat" : "Find Your Habitat"}
                             </button>
                         </Link>
-                        <div className="w-10 h-10 rounded-full border border-nature-sage/20 p-0.5">
+                    </div>
+
+                    <div className="flex items-center gap-4">
+                        <button
+                            onClick={async () => {
+                                await supabase.auth.signOut();
+                                router.push("/login");
+                            }}
+                            className="w-10 h-10 rounded-full border border-nature-sage/20 flex items-center justify-center text-nature-forest/40 hover:text-nature-forest hover:bg-nature-forest/5 hover:border-nature-forest/30 transition-all"
+                            title="Sign Out"
+                        >
+                            <LogOut size={14} strokeWidth={2.5} />
+                        </button>
+                        <div className="w-10 h-10 rounded-full border border-nature-sage/20 p-0.5 pointer-events-none select-none">
                             <div className="w-full h-full bg-nature-sage/10 rounded-full flex items-center justify-center text-nature-forest font-black text-xs">
                                 {user.email?.[0].toUpperCase()}
                             </div>
@@ -171,9 +194,9 @@ export default function Dashboard() {
                                         <h3 className="text-2xl font-black text-nature-forest uppercase tracking-tighter">
                                             {lockedUni ? lockedUni.name : "Strategic Roadmap Encrypted"}
                                         </h3>
-                                        <p className="text-sm font-bold text-nature-forest/40 leading-relaxed">
+                                        <p className="text-sm font-bold text-nature-forest/40 leading-relaxed max-w-lg mx-auto italic">
                                             {lockedUni
-                                                ? "Your personalized timeline for admission is ready to germinate. Start your tasks to progress."
+                                                ? (lockedUni.reasoning || "Your personalized timeline for admission is ready to germinate.")
                                                 : "Lock at least one university to germinate your personalized application timeline and growth intelligence."}
                                         </p>
                                     </div>
@@ -199,7 +222,7 @@ export default function Dashboard() {
                                         {[
                                             { label: "Intake", value: user.profile?.targetIntake || "2026" },
                                             { label: "Degree", value: user.profile?.intendedDegree || "Masters" },
-                                            { label: "Country", value: user.profile?.preferredCountry || "USA" },
+                                            { label: "Country", value: lockedUni?.country || user.profile?.preferredCountry || "Global" },
                                             { label: "Budget", value: `$${user.profile?.budget || "250"}k / yr` }
                                         ].map((item, i) => (
                                             <div key={i} className="flex justify-between items-center group">
@@ -218,9 +241,9 @@ export default function Dashboard() {
                                     </header>
                                     <div className="space-y-6">
                                         {[
-                                            { label: "Academics", value: 85, color: "#1e332a" },
+                                            { label: "AI Fit Score", value: lockedUni?.fitScore || 85, color: "#1e332a" },
                                             { label: "Readiness", value: 40, color: "#7a9c84" },
-                                            { label: "Budget Fit", value: 70, color: "#b08d4a" },
+                                            { label: "Budget Fit", value: lockedUni?.cost === 'High' ? 45 : 80, color: "#b08d4a" },
                                         ].map((item, i) => (
                                             <div key={i} className="space-y-2">
                                                 <div className="flex justify-between items-center px-0.5">
@@ -246,63 +269,9 @@ export default function Dashboard() {
                         {/* Sidebar Content (4 Columns) */}
                         <aside className="lg:col-span-4 space-y-10">
 
-                            {/* Task Garden */}
-                            <section className="premium-card p-10">
-                                <header className="flex items-center justify-between mb-10">
-                                    <div className="flex flex-col">
-                                        <h3 className="text-lg font-black text-nature-forest tracking-tight uppercase leading-none">To-Do Garden</h3>
-                                        <span className="text-[9px] font-black text-nature-sage uppercase tracking-widest mt-1">Maintenance</span>
-                                    </div>
-                                    <CheckSquare size={20} className="text-nature-forest/20" />
-                                </header>
-                                <div className="space-y-6">
-                                    {tasks.map((task) => (
-                                        <div
-                                            key={task.id}
-                                            onClick={() => toggleTask(task.id)}
-                                            className="group flex gap-4 cursor-pointer items-start"
-                                        >
-                                            <div className={`mt-0.5 w-6 h-6 rounded-lg border-2 flex-shrink-0 flex items-center justify-center transition-all ${task.completed
-                                                ? 'bg-nature-forest border-nature-forest shadow-lg shadow-nature-forest/20'
-                                                : 'border-nature-sage/20 bg-white group-hover:border-nature-leaf'
-                                                }`}>
-                                                {task.completed && <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="text-white"><CheckSquare size={12} /></motion.div>}
-                                            </div>
-                                            <div className="flex flex-col gap-1">
-                                                <span className={`text-sm font-bold tracking-tight leading-tight transition-all duration-300 ${task.completed ? 'text-nature-forest/30 line-through' : 'text-nature-forest'
-                                                    }`}>
-                                                    {task.title}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </section>
-
-                            {/* AI Oracle Card */}
-                            <section className="relative group perspective-1000">
-                                <div className="absolute -inset-1 bg-gradient-to-br from-nature-leaf/20 to-nature-forest/20 rounded-[28px] blur opacity-50 group-hover:opacity-100 transition duration-1000"></div>
-                                <div className="relative premium-card p-10 bg-[#1e332a] border-white/5">
-                                    <div className="flex items-center gap-4 mb-8">
-                                        <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-nature-leaf shadow-inner">
-                                            <Sparkles size={24} />
-                                        </div>
-                                        <div>
-                                            <h3 className="font-black text-black uppercase tracking-tighter leading-none">AI Oracle</h3>
-                                            <p className="text-[9px] font-black text-nature-leaf uppercase tracking-widest mt-1">Direct Consultation</p>
-                                        </div>
-                                    </div>
-                                    <p className="text-sm font-bold text-black /80 leading-relaxed mb-10 italic">
-                                        "The current soil conditions for Masters in the USA are vibrant. Shall we analyze your target shortlist?"
-                                    </p>
-                                    <button
-                                        onClick={() => router.push("/chat")}
-                                        className="w-full py-5 rounded-2xl bg-nature-leaf hover:bg-[#328f6d] text-nature-forest transition-all font-black text-xs uppercase tracking-widest shadow-2xl shadow-nature-leaf/20 flex items-center justify-center gap-3 active:scale-95"
-                                    >
-                                        <MessageSquare size={18} />
-                                        Enter Chambers
-                                    </button>
-                                </div>
+                            {/* Embedded AI Counsellor */}
+                            <section>
+                                <ChatBox lockedUni={lockedUni} />
                             </section>
 
                         </aside>

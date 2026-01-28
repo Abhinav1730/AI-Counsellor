@@ -1,19 +1,28 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { UNIVERSITIES } from "@/lib/mockUniversities";
 import UniversityCard from "@/components/universities/UniversityCard";
-import { ArrowLeft, Search, Filter, Info, AlertTriangle, Sprout, Sparkles, MapPin, Compass } from "lucide-react";
+import { ArrowLeft, Search, Filter, Info, AlertTriangle, Sprout, Sparkles, MapPin, Compass, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import axios from "axios";
+
+const API_BASE_URL = "http://localhost:5000/api";
 
 export default function UniversityDiscovery() {
     const router = useRouter();
     const [lockedId, setLockedId] = useState<string | null>(null);
     const [showAlert, setShowAlert] = useState(false);
     const [user, setUser] = useState<any>(null);
+
+    // Search & Data State
+    const [searchQuery, setSearchQuery] = useState("");
+    const [displayedUnis, setDisplayedUnis] = useState<any[]>(UNIVERSITIES);
+    const [isLoading, setIsLoading] = useState(false);
+    const [isSearching, setIsSearching] = useState(false);
 
     useEffect(() => {
         const checkUser = async () => {
@@ -26,15 +35,55 @@ export default function UniversityDiscovery() {
         checkUser();
     }, []);
 
+    // Debounced Search Logic
+    useEffect(() => {
+        if (!searchQuery.trim()) {
+            setDisplayedUnis(UNIVERSITIES);
+            setIsSearching(false);
+            return;
+        }
+
+        const delayDebounceFn = setTimeout(async () => {
+            setIsLoading(true);
+            setIsSearching(true);
+            try {
+                const response = await axios.get(`${API_BASE_URL}/universities/search`, {
+                    params: {
+                        q: searchQuery,
+                        userId: user?.id
+                    }
+                });
+                setDisplayedUnis(response.data);
+            } catch (error) {
+                console.error("Search failed:", error);
+                // Fallback to local filtering if API fails
+                const filtered = UNIVERSITIES.filter(u =>
+                    u.name.toLowerCase().includes(searchQuery.toLowerCase())
+                );
+                setDisplayedUnis(filtered);
+            } finally {
+                setIsLoading(false);
+            }
+        }, 800); // 800ms debounce for premium feel
+
+        return () => clearTimeout(delayDebounceFn);
+    }, [searchQuery, user]);
+
     const handleLock = (id: string) => {
+        const uniToLock = displayedUnis.find(u => u.id === id);
+
         if (lockedId === id) {
             if (confirm("Are you sure you want to release this commitment? This will pause your personalized roadmap.")) {
                 setLockedId(null);
                 localStorage.removeItem("lockedUni");
+                localStorage.removeItem("lockedUniData");
             }
         } else {
             setLockedId(id);
             localStorage.setItem("lockedUni", id);
+            if (uniToLock) {
+                localStorage.setItem("lockedUniData", JSON.stringify(uniToLock));
+            }
             setShowAlert(true);
             setTimeout(() => setShowAlert(false), 3000);
         }
@@ -42,7 +91,7 @@ export default function UniversityDiscovery() {
 
     return (
         <div className="min-h-screen bg-transparent pb-24 flex flex-col items-center">
-            {/* Top Bar - Strictly Synced with Dashboard */}
+            {/* Top Bar */}
             <nav className="fixed top-0 left-0 w-full bg-white/90 backdrop-blur-md z-[100] border-b border-nature-forest/5 px-16 py-8">
                 <div className="flex items-center justify-between w-full">
                     <div className="flex items-center gap-3 cursor-pointer group" onClick={() => router.push("/")}>
@@ -71,7 +120,7 @@ export default function UniversityDiscovery() {
                 </div>
             </nav>
 
-            <div className="h-16" /> {/* Navigation Buffer */}
+            <div className="h-16" />
 
             <main className="w-full max-w-5xl pt-44 px-6 lg:px-0">
                 <div className="flex flex-col gap-12">
@@ -85,10 +134,13 @@ export default function UniversityDiscovery() {
                                     <span className="text-nature-forest/40 text-[10px] font-black uppercase tracking-[0.25em]">Habitat Discovery</span>
                                 </div>
                                 <h1 className="text-4xl font-black text-nature-forest tracking-tighter leading-none">
-                                    University Constellations
+                                    {isSearching ? "Search Results" : "University Constellations"}
                                 </h1>
                                 <p className="text-sm font-bold text-nature-forest/40 max-w-xl leading-relaxed">
-                                    We&apos;ve analyzed your academic genome against thousands of data points. These {UNIVERSITIES.length} institutions offer the richest soil for your growth.
+                                    {isSearching
+                                        ? `Exploring the global arboretum for "${searchQuery}"...`
+                                        : "We've analyzed your academic genome against thousands of data points. These institutions offer the richest soil for your growth."
+                                    }
                                 </p>
                             </div>
 
@@ -96,9 +148,16 @@ export default function UniversityDiscovery() {
                                 <div className="relative flex-1 md:w-[480px]">
                                     <input
                                         type="text"
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
                                         placeholder="SEARCH UNIVERSITIES..."
                                         className="w-full bg-nature-forest/5 border border-nature-forest/5 rounded-2xl px-8 py-5 outline-none focus:border-nature-leaf/30 text-[11px] font-black uppercase tracking-[0.2em] text-nature-forest shadow-inner"
                                     />
+                                    {isLoading && (
+                                        <div className="absolute right-6 top-1/2 -translate-y-1/2">
+                                            <Loader2 size={18} className="text-nature-leaf animate-spin" />
+                                        </div>
+                                    )}
                                 </div>
                                 <button className="p-4 bg-nature-forest/5 rounded-2xl border border-nature-forest/5 hover:border-nature-leaf/30 transition-all text-nature-forest">
                                     <Filter size={20} />
@@ -107,7 +166,7 @@ export default function UniversityDiscovery() {
                         </div>
                     </header>
 
-                    {/* Locked Status Banner - Premium Style */}
+                    {/* Locked Status Banner */}
                     <AnimatePresence>
                         {lockedId && (
                             <motion.div
@@ -123,7 +182,7 @@ export default function UniversityDiscovery() {
                                     <div className="flex-1">
                                         <h4 className="font-black text-lg uppercase tracking-tight leading-none">Strategic Focus Rooted</h4>
                                         <p className="text-xs text-white/50 font-bold uppercase tracking-widest mt-2 block">
-                                            {UNIVERSITIES.find(u => u.id === lockedId)?.name} is now your primary target.
+                                            {displayedUnis.find(u => u.id === lockedId)?.name || "Selected Habitat"} is now your primary target.
                                         </p>
                                     </div>
                                     <button
@@ -138,19 +197,39 @@ export default function UniversityDiscovery() {
                     </AnimatePresence>
 
                     {/* University Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                        {UNIVERSITIES.map((uni) => (
-                            <UniversityCard
-                                key={uni.id}
-                                uni={uni}
-                                onLock={handleLock}
-                                isLocked={lockedId === uni.id}
-                            />
-                        ))}
-                    </div>
+                    <AnimatePresence mode="wait">
+                        <motion.div
+                            key={isSearching ? 'results' : 'featured'}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                            className="grid grid-cols-1 md:grid-cols-2 gap-10"
+                        >
+                            {displayedUnis.length > 0 ? (
+                                displayedUnis.map((uni) => (
+                                    <UniversityCard
+                                        key={uni.id}
+                                        uni={uni}
+                                        onLock={handleLock}
+                                        isLocked={lockedId === uni.id}
+                                    />
+                                ))
+                            ) : (
+                                !isLoading && (
+                                    <div className="col-span-full p-20 premium-card text-center space-y-4">
+                                        <div className="w-20 h-20 bg-nature-forest/5 rounded-full flex items-center justify-center mx-auto text-nature-sage">
+                                            <Search size={32} />
+                                        </div>
+                                        <h3 className="text-xl font-black text-nature-forest uppercase tracking-tighter">No Habitats Found</h3>
+                                        <p className="text-sm font-bold text-nature-forest/40 uppercase tracking-widest">Try adjusting your search filters or term.</p>
+                                    </div>
+                                )
+                            )}
+                        </motion.div>
+                    </AnimatePresence>
 
                     {/* Empty State / Warning if nothing locked */}
-                    {!lockedId && (
+                    {!lockedId && !isSearching && (
                         <div className="p-16 premium-card border-dashed border-nature-forest/10 flex flex-col items-center text-center space-y-6">
                             <div className="w-20 h-20 rounded-3xl bg-[#E14D4D]/5 flex items-center justify-center text-[#E14D4D]">
                                 <AlertTriangle size={40} />
@@ -173,7 +252,7 @@ export default function UniversityDiscovery() {
                 </div>
             </main>
 
-            {/* Success Toast Upgrade */}
+            {/* Success Toast */}
             <AnimatePresence>
                 {showAlert && (
                     <motion.div
