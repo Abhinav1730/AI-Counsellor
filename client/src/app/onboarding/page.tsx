@@ -13,6 +13,10 @@ import {
     Sprout,
     Leaf
 } from "lucide-react";
+import { supabase } from "@/lib/supabase";
+import axios from "axios";
+
+const API_BASE_URL = "http://localhost:5000/api";
 
 const STEPS = [
     { id: "academic", title: "Academic Soil", icon: <GraduationCap /> },
@@ -38,13 +42,31 @@ export default function Onboarding() {
         sopStatus: ""
     });
 
-    const handleNext = () => {
+    const handleNext = async () => {
         if (currentStep < STEPS.length - 1) {
             setCurrentStep(currentStep + 1);
         } else {
-            const user = JSON.parse(localStorage.getItem("user") || "{}");
-            localStorage.setItem("user", JSON.stringify({ ...user, profile: formData, onboardingComplete: true }));
-            router.push("/dashboard");
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                if (!user) {
+                    router.push("/signup");
+                    return;
+                }
+
+                // Save to backend
+                await axios.post(`${API_BASE_URL}/profile`, {
+                    userId: user.id,
+                    data: {
+                        ...formData,
+                        onboarding_complete: true
+                    }
+                });
+
+                router.push("/dashboard");
+            } catch (error: any) {
+                console.error("Onboarding error:", error);
+                alert("Failed to save profile. Please try again.");
+            }
         }
     };
 
@@ -68,7 +90,7 @@ export default function Onboarding() {
                         className={`w-12 h-12 rounded-2xl flex items-center justify-center border-2 transition-all duration-500 shadow-sm ${i <= currentStep ? 'bg-nature-forest border-nature-forest shadow-nature-forest/20' : 'bg-white border-nature-sage/10'
                             }`}
                     >
-                        {React.cloneElement(step.icon as React.ReactElement, { size: 20, className: i <= currentStep ? 'text-white' : 'text-nature-sage/50' })}
+                        {(step.icon as any) && React.cloneElement(step.icon as React.ReactElement<any>, { size: 20, className: i <= currentStep ? 'text-white' : 'text-nature-sage/50' })}
                     </div>
                 ))}
             </div>
@@ -83,7 +105,7 @@ export default function Onboarding() {
             >
                 <div className="flex items-center gap-3 mb-16">
                     <div className="p-3 rounded-2xl bg-nature-sage/10 text-nature-forest shadow-inner">
-                        {React.cloneElement(STEPS[currentStep].icon as React.ReactElement, { size: 28 })}
+                        {React.cloneElement(STEPS[currentStep].icon as React.ReactElement<any>, { size: 28 })}
                     </div>
                     <div>
                         <p className="text-[10px] font-bold text-nature-sage uppercase tracking-widest">Phase {currentStep + 1}</p>

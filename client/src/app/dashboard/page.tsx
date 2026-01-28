@@ -20,6 +20,10 @@ import {
     Sparkles,
     ArrowRight
 } from "lucide-react";
+import { supabase } from "@/lib/supabase";
+import axios from "axios";
+
+const API_BASE_URL = "http://localhost:5000/api";
 
 export default function Dashboard() {
     const router = useRouter();
@@ -35,24 +39,39 @@ export default function Dashboard() {
     const [lockedUni, setLockedUni] = useState<any>(null);
 
     useEffect(() => {
-        const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
-        const lockedId = localStorage.getItem("lockedUni");
+        const checkUser = async () => {
+            const { data: { user: supabaseUser } } = await supabase.auth.getUser();
 
-        if (!storedUser.email) {
-            router.push("/signup");
-        } else if (!storedUser.onboardingComplete) {
-            router.push("/onboarding");
-        } else {
-            setUser(storedUser);
-            if (lockedId) {
-                // We use the same mock data import logic
-                import("@/lib/mockUniversities").then((module) => {
-                    const uni = module.UNIVERSITIES.find((u: any) => u.id === lockedId);
-                    setLockedUni(uni);
-                    setStage(4);
-                });
+            if (!supabaseUser) {
+                router.push("/signup");
+                return;
             }
-        }
+
+            try {
+                const response = await axios.get(`${API_BASE_URL}/profile/${supabaseUser.id}`);
+                const profile = response.data;
+
+                if (!profile || !profile.onboarding_complete) {
+                    router.push("/onboarding");
+                } else {
+                    setUser({ ...supabaseUser, profile });
+
+                    const lockedId = localStorage.getItem("lockedUni");
+                    if (lockedId) {
+                        import("@/lib/mockUniversities").then((module) => {
+                            const uni = module.UNIVERSITIES.find((u: any) => u.id === lockedId);
+                            setLockedUni(uni);
+                            setStage(4);
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error("Error fetching profile:", error);
+                router.push("/onboarding");
+            }
+        };
+
+        checkUser();
     }, [router]);
 
     if (!user) return null;

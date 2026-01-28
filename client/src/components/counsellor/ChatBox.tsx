@@ -2,7 +2,11 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, Sparkles, University, Lock, CheckCircle, Info } from "lucide-react";
+import { Send, Sparkles, University, Lock, CheckCircle, Info, Loader2 } from "lucide-react";
+import axios from "axios";
+import { supabase } from "@/lib/supabase";
+
+const API_BASE_URL = "http://localhost:5000/api";
 
 interface Message {
     id: string;
@@ -26,34 +30,60 @@ export default function ChatBox() {
         }
     ]);
     const [input, setInput] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     };
 
-    useEffect(scrollToBottom, [messages]);
+    useEffect(() => {
+        scrollToBottom();
+    }, [messages, isLoading]);
 
-    const handleSend = () => {
-        if (!input.trim()) return;
+    const handleSend = async () => {
+        if (!input.trim() || isLoading) return;
 
-        const userMsg: Message = { id: Date.now().toString(), role: "user", content: input };
+        const currentInput = input;
+        const userMsg: Message = { id: Date.now().toString(), role: "user", content: currentInput };
         setMessages(prev => [...prev, userMsg]);
         setInput("");
+        setIsLoading(true);
 
-        // Simulate AI Response
-        setTimeout(() => {
+        try {
+            const { data: { user: supabaseUser } } = await supabase.auth.getUser();
+            let profile = {};
+
+            if (supabaseUser) {
+                const profileRes = await axios.get(`${API_BASE_URL}/profile/${supabaseUser.id}`);
+                profile = profileRes.data;
+            }
+
+            const response = await axios.post(`${API_BASE_URL}/ai/chat`, {
+                message: currentInput,
+                profile: profile,
+                stage: "Discovery"
+            });
+
+            const aiData = response.data;
             const aiMsg: Message = {
-                id: (Date.now() + 1).toString(),
+                id: Date.now().toString(),
                 role: "ai",
-                content: "I've shortlisted 3 universities for you. Stanford (Dream), Georgia Tech (Target), and ASU (Safe). You can lock one of these to see the specific application requirements.",
-                actions: [
-                    { label: "Shortlist Stanford", type: "shortlist", payload: "Stanford" },
-                    { label: "Shortlist Georgia Tech", type: "shortlist", payload: "Georgia Tech" }
-                ]
+                content: aiData.content,
+                actions: aiData.suggestedActions
             };
             setMessages(prev => [...prev, aiMsg]);
-        }, 1000);
+        } catch (error) {
+            console.error("Chat error:", error);
+            const errorMsg: Message = {
+                id: Date.now().toString(),
+                role: "ai",
+                content: "I'm sorry, I'm having trouble connecting to my knowledge base right now. Please try again in a moment."
+            };
+            setMessages(prev => [...prev, errorMsg]);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -79,8 +109,8 @@ export default function ChatBox() {
 
                                 <div className="space-y-4">
                                     <div className={`p-4 rounded-2xl text-sm leading-relaxed shadow-sm ${msg.role === "ai"
-                                            ? "bg-white/5 border border-white/5 rounded-tl-none"
-                                            : "bg-star-blue text-white rounded-tr-none"
+                                        ? "bg-white/5 border border-white/5 rounded-tl-none"
+                                        : "bg-star-blue text-white rounded-tr-none"
                                         }`}>
                                         {msg.content}
                                     </div>
@@ -104,6 +134,22 @@ export default function ChatBox() {
                             </div>
                         </motion.div>
                     ))}
+                    {isLoading && (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="flex justify-start"
+                        >
+                            <div className="flex gap-4 items-center">
+                                <div className="w-10 h-10 rounded-full bg-star-blue/20 flex items-center justify-center">
+                                    <Loader2 className="w-5 h-5 text-star-blue animate-spin" />
+                                </div>
+                                <div className="p-4 rounded-2xl bg-white/5 border border-white/5 text-xs text-foreground/40 italic">
+                                    Counsellor is thinking...
+                                </div>
+                            </div>
+                        </motion.div>
+                    )}
                 </AnimatePresence>
                 <div ref={messagesEndRef} />
             </div>

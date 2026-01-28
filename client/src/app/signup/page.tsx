@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import AuthCard from "@/components/ui/AuthCard";
 import { ArrowRight, Loader2 } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
 export default function Signup() {
     const router = useRouter();
@@ -14,10 +15,24 @@ export default function Signup() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
-        setTimeout(() => {
-            localStorage.setItem("user", JSON.stringify({ ...formData, onboardingComplete: false }));
+
+        try {
+            const { data, error } = await supabase.auth.signUp({
+                email: formData.email,
+                password: formData.password,
+                options: {
+                    data: {
+                        username: formData.username,
+                    },
+                },
+            });
+
+            if (error) throw error;
             router.push("/onboarding");
-        }, 1500);
+        } catch (error: any) {
+            alert(error.message || "An error occurred during sign up");
+            setIsLoading(false);
+        }
     };
 
     const inputClasses = "w-full px-8 py-5 bg-[#F8F9F8] border border-forest/10 rounded-2xl focus:outline-none focus:border-forest/30 focus:bg-white transition-all text-lg font-semibold text-forest placeholder:text-forest/20 shadow-sm";

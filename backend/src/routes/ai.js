@@ -6,33 +6,52 @@ router.post('/chat', async (req, res) => {
   const { message, profile, stage } = req.body;
 
   try {
-    // This is where you'd call OpenRouter. 
-    // For the prototype, we can return a structured "Reasoning" response.
-    
-    const prompt = `
-      User Message: ${message}
-      User Profile: ${JSON.stringify(profile)}
-      Current Stage: ${stage}
-      
-      Act as an AI Counsellor. Provide a response that includes:
-      1. Counseling advice
-      2. Suggested actions (shortlist, lock, etc.)
-      3. Reasoning based on profile
-    `;
+    const response = await axios.post(
+      "https://openrouter.ai/api/v1/chat/completions",
+      {
+        model: "google/gemini-2.0-flash-exp:free",
+        messages: [
+          {
+            role: "system",
+            content: `Act as a premium AI Counsellor for higher education. 
+            User Profile: ${JSON.stringify(profile || {})}
+            Current Stage: ${stage || 'Initial exploration'}
+            
+            Provide a sophisticated, helpful response. 
+            Return your response STRICTLY in the following JSON format:
+            {
+              "content": "Your main advice and response to the user",
+              "strategy": "A brief explanation of how this advice aligns with their profile",
+              "suggestedActions": [
+                { "label": "Action Text", "type": "action_type_key" }
+              ]
+            }`
+          },
+          { role: "user", content: message }
+        ],
+        response_format: { type: "json_object" }
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
+          "HTTP-Referer": "http://localhost:3000",
+          "X-Title": "AI Counsellor",
+          "Content-Type": "application/json"
+        },
+      }
+    );
 
-    // Simulated AI response for the prototype (to avoid actual API dependency during first run)
-    const mockResponse = {
-      content: "Based on your interest in US Computer Science programs and your budget, I've analyzed your profile. Stanford is a stretch but Georgia Tech is a great target. I recommend shortlisting them to see our detailed risk analysis.",
-      strategy: "We should focus on strengthening your GRE scores to secure a spot at Georgia Tech.",
-      suggestedActions: [
-        { label: "Shortlist Georgia Tech", type: "shortlist" },
-        { label: "View Risk Analysis", type: "risk" }
-      ]
-    };
-
-    res.json(mockResponse);
+    const aiResponse = JSON.parse(response.data.choices[0].message.content);
+    res.json(aiResponse);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('OpenRouter Error:', error.response?.data || error.message);
+    // Fallback to a polite error message if AI fails
+    res.status(500).json({ 
+      error: 'AI service currently recalibrating',
+      content: "I'm experiencing a brief pause in my neural processing. Please try sharing your thoughts again in a moment.",
+      strategy: "The AI service is temporarily unavailable.",
+      suggestedActions: [{ label: "Retry", type: "retry" }]
+    });
   }
 });
 

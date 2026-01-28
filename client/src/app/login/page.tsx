@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import AuthCard from "@/components/ui/AuthCard";
 import { ArrowRight, Loader2 } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
 export default function Login() {
     const router = useRouter();
@@ -14,18 +15,33 @@ export default function Login() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
-        setTimeout(() => {
-            const user = JSON.parse(localStorage.getItem("user") || "{}");
-            if (user.email === formData.email) {
-                if (user.onboardingComplete) {
-                    router.push("/dashboard");
-                } else {
-                    router.push("/onboarding");
-                }
+
+        try {
+            const { data, error } = await supabase.auth.signInWithPassword({
+                email: formData.email,
+                password: formData.password,
+            });
+
+            if (error) throw error;
+
+            // Check if profile exists and onboarding is complete
+            // For now, we'll just check if they have a profile in the profiles table
+            // This assumes a 'profiles' table exists in Supabase
+            const { data: profile } = await supabase
+                .from('profiles')
+                .select('onboarding_complete')
+                .eq('id', data.user?.id)
+                .single();
+
+            if (profile?.onboarding_complete) {
+                router.push("/dashboard");
             } else {
                 router.push("/onboarding");
             }
-        }, 1200);
+        } catch (error: any) {
+            alert(error.message || "An error occurred during login");
+            setIsLoading(false);
+        }
     };
 
     const inputClasses = "w-full px-8 py-5 bg-[#F8F9F8] border border-forest/10 rounded-2xl focus:outline-none focus:border-forest/30 focus:bg-white transition-all text-lg font-semibold text-forest placeholder:text-forest/20 shadow-sm";
