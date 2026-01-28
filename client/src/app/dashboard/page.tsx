@@ -22,7 +22,7 @@ import { supabase } from "@/lib/supabase";
 import axios from "axios";
 import ChatBox from "@/components/counsellor/ChatBox";
 
-const API_BASE_URL = "http://localhost:5000/api";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
 export default function Dashboard() {
     const router = useRouter();

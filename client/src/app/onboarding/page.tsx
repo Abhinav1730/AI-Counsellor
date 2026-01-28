@@ -17,7 +17,7 @@ import { supabase } from "@/lib/supabase";
 import axios from "axios";
 import { cn } from "@/lib/utils";
 
-const API_BASE_URL = "http://localhost:5000/api";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
 const STEPS = [
     { id: "academic", title: "Academic Soil", icon: <GraduationCap />, tag: "Phase 01" },
