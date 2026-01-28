@@ -110,7 +110,8 @@ export default function Onboarding() {
     return (
         <div className="min-h-screen flex flex-col items-center justify-center p-6 pb-24">
             {/* Progress Eco-System */}
-            <div className="w-full max-w-3xl mb-0 relative px-4 flex justify-between -translate-x-12">
+            {/* Progress Eco-System */}
+            <div className="w-full max-w-3xl mb-8 relative px-2 md:px-4 flex justify-between mx-auto -translate-x-2 md:-translate-x-12">
                 <div className="progress-line-bg" />
                 <div
                     className="progress-line-active"
@@ -121,21 +122,21 @@ export default function Onboarding() {
                     <div key={step.id} className="flex flex-col items-center gap-4 relative">
                         <div
                             className={cn(
-                                "step-dot",
+                                "step-dot w-8 h-8 md:w-12 md:h-12",
                                 i <= currentStep ? "step-dot-active" : "step-dot-inactive"
                             )}
                         >
                             {React.cloneElement(step.icon as React.ReactElement<any>, {
-                                size: 24,
+                                size: undefined,
                                 strokeWidth: 1.5,
-                                className: i <= currentStep ? 'text-white' : 'text-nature-sage/40'
+                                className: cn("w-4 h-4 md:w-6 md:h-6", i <= currentStep ? 'text-white' : 'text-nature-sage/40')
                             })}
                         </div>
                         {i === currentStep && (
                             <motion.span
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                className="text-[10px] font-black uppercase tracking-[0.15em] text-nature-forest absolute -bottom-8 whitespace-nowrap"
+                                className="text-[8px] md:text-[10px] font-black uppercase tracking-[0.15em] text-nature-forest absolute -bottom-6 md:-bottom-8 whitespace-nowrap"
                             >
                                 {step.id}
                             </motion.span>
